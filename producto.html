@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Producto - DigitalVerse</title>
+    <meta name="description" content="Vista detallada del producto. Compra y descarga arte digital exclusivo generado por IA.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de animación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/glfx-js/0.0.1/glfx.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --neon-green: #10B981;
+            --purple-accent: #8B5CF6;
+            --dark-bg: #0F172A;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-accent {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .product-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .product-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+        }
+        
+        .product-image-container img {
+            transition: all 0.3s ease;
+        }
+        
+        .product-image-container:hover img {
+            transform: scale(1.05);
+        }
+        
+        .rating-stars {
+            color: #FCD34D;
+        }
+        
+        .review-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .zoom-container {
+            position: relative;
+            cursor: zoom-in;
+        }
+        
+        .zoom-container.zoomed {
+            cursor: zoom-out;
+        }
+        
+        .zoom-lens {
+            position: absolute;
+            border: 2px solid var(--purple-accent);
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            display: none;
+            pointer-events: none;
+            z-index: 20;
+        }
+        
+        .zoom-result {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            width: 300px;
+            height: 300px;
+            display: none;
+            overflow: hidden;
+            background: var(--dark-bg);
+            z-index: 30;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de Partículas -->
+    <div id="particle-container" class="particle-bg"></div>
+    
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-blue-400 transition-colors font-medium">Inicio</a>
+                    <a href="catalogo.html" class="text-white hover:text-blue-400 transition-colors font-medium">Catálogo</a>
+                    <a href="planes.html" class="text-white hover:text-blue-400 transition-colors font-medium">Planes</a>
+                    <a href="generador.html" class="text-white hover:text-blue-400 transition-colors font-medium">Generador IA</a>
+                    <a href="login.html" class="btn-primary px-4 py-2 rounded-lg text-white font-medium">Iniciar Sesión</a>
+                    <div class="relative">
+                        <button id="carrito-btn" class="text-white hover:text-blue-400 transition-colors relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+                            </svg>
+                            <span id="carrito-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Producto Principal -->
+    <section class="pt-24 pb-12 px-4 sm:px-6 lg:px-8" id="producto-principal">
+        <div class="max-w-7xl mx-auto">
+            <!-- Breadcrumb -->
+            <div class="flex items-center space-x-2 text-sm text-gray-400 mb-8 reveal">
+                <a href="index.html" class="hover:text-white transition-colors">Inicio</a>
+                <span>/</span>
+                <a href="catalogo.html" class="hover:text-white transition-colors">Catálogo</a>
+                <span>/</span>
+                <span id="producto-categoria" class="text-white">Categoría</span>
+                <span>/</span>
+                <span id="producto-nombre" class="text-white">Producto</span>
+            </div>
+            
+            <!-- Contenido del Producto -->
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Imagen del Producto -->
+                <div class="reveal">
+                    <div class="product-image-container zoom-container" id="image-container">
+                        <div class="watermark" id="watermark">DIGITALVERSE</div>
+                        <img id="producto-imagen" 
+                             src="" 
+                             alt="Producto" 
+                             class="w-full aspect-square object-cover">
+                        <div class="zoom-lens" id="zoom-lens"></div>
+                        <div class="zoom-result" id="zoom-result">
+                            <img id="zoom-result-img" src="" alt="Zoom" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    
+                    <!-- Miniaturas -->
+                    <div class="flex space-x-4 mt-4" id="producto-thumbnails">
+                        <!-- Las miniaturas se cargarán dinámicamente -->
+                    </div>
+                </div>
+                
+                <!-- Información del Producto -->
+                <div class="reveal">
+                    <div class="space-y-6">
+                        <!-- Categoría y Tipo -->
+                        <div class="flex items-center space-x-3">
+                            <span id="producto-categoria-badge" class="px-3 py-1 rounded-full text-sm font-medium">
+                                Categoría
+                            </span>
+                            <span id="producto-tipo-badge" class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium capitalize">
+                                Tipo
+                            </span>
+                        </div>
+                        
+                        <!-- Nombre -->
+                        <h1 id="producto-nombre-titulo" class="font-display font-bold text-4xl lg:text-5xl text-white">
+                            Nombre del Producto
+                        </h1>
+                        
+                        <!-- Descripción -->
+                        <p id="producto-descripcion" class="text-lg text-gray-300 leading-relaxed">
+                            Descripción del producto...
+                        </p>
+                        
+                        <!-- Rating -->
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-1">
+                                <div class="rating-stars flex">
+                                    <span>★★★★★</span>
+                                </div>
+                                <span class="text-gray-400 ml-2">(4.8)</span>
+                            </div>
+                            <span class="text-gray-400">•</span>
+                            <span class="text-gray-400">127 valoraciones</span>
+                        </div>
+                        
+                        <!-- Precio -->
+                        <div class="flex items-center space-x-4">
+                            <span id="producto-precio" class="text-4xl font-bold text-green-400">
+                                €0.99
+                            </span>
+                            <span class="text-xl text-gray-400 line-through">€1.99</span>
+                            <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded text-sm font-semibold">
+                                -50% OFF
+                            </span>
+                        </div>
+                        
+                        <!-- Características -->
+                        <div class="space-y-3">
+                            <h3 class="font-semibold text-lg text-white">Características</h3>
+                            <ul class="space-y-2 text-gray-300">
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Resolución 8K Ultra HD</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Formato PNG con transparencia</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Compatible con todos los dispositivos</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Licencia de uso personal y comercial</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Botones de Acción -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                            <button id="btn-add-cart" class="flex-1 btn-primary px-8 py-4 rounded-xl text-lg font-semibold text-white">
+                                Añadir al Carrito
+                            </button>
+                            <button id="btn-buy-now" class="flex-1 btn-secondary px-8 py-4 rounded-xl text-lg font-semibold text-white">
+                                Comprar Ahora
+                            </button>
+                        </div>
+                        
+                        <!-- Botones Secundarios -->
+                        <div class="flex items-center justify-center space-x-4 pt-4">
+                            <button id="btn-preview" class="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                <span>Vista Previa</span>
+                            </button>
+                            <button id="btn-share" class="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                                </svg>
+                                <span>Compartir</span>
+                            </button>
+                            <button id="btn-wishlist" class="text-gray-400 hover:text-red-400 transition-colors flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span>Favorito</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Productos Relacionados -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display font-bold text-4xl mb-6 gradient-text">Productos Relacionados</h2>
+                <p class="text-xl text-gray-300">Descubre más productos similares a este</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6" id="productos-relacionados">
+                <!-- Los productos relacionados se cargarán dinámicamente -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Valoraciones -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display font-bold text-4xl mb-6 gradient-text">Valoraciones</h2>
+                <p class="text-xl text-gray-300">Lo que dicen nuestros clientes</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="valoraciones">
+                <!-- Las valoraciones se cargarán dinámicamente -->
+            </div>
+            
+            <!-- Formulario de Valoración -->
+            <div class="glass-effect rounded-2xl p-8 mt-12 reveal">
+                <h3 class="font-accent font-bold text-2xl mb-6 text-center">Deja tu valoración</h3>
+                <form id="form-valoracion" class="space-y-6">
+                    <div class="flex justify-center">
+                        <div class="flex space-x-1" id="rating-input">
+                            <button type="button" class="text-3xl text-gray-400 hover:text-yellow-400 transition-colors" data-rating="1">★</button>
+                            <button type="button" class="text-3xl text-gray-400 hover:text-yellow-400 transition-colors" data-rating="2">★</button>
+                            <button type="button" class="text-3xl text-gray-400 hover:text-yellow-400 transition-colors" data-rating="3">★</button>
+                            <button type="button" class="text-3xl text-gray-400 hover:text-yellow-400 transition-colors" data-rating="4">★</button>
+                            <button type="button" class="text-3xl text-gray-400 hover:text-yellow-400 transition-colors" data-rating="5">★</button>
+                        </div>
+                    </div>
+                    <div>
+                        <textarea id="comentario-input" 
+                                  placeholder="Escribe tu comentario..." 
+                                  class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 resize-none"
+                                  rows="4"></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn-primary px-8 py-3 rounded-xl font-semibold text-white">
+                            Enviar Valoración
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Modal de Vista Previa -->
+    <div id="preview-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" id="preview-overlay"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-effect rounded-2xl p-8 max-w-4xl w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-accent font-bold text-2xl text-white">Vista Previa</h3>
+                    <button id="close-preview" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <img id="preview-image" src="" alt="Vista previa" class="w-full max-h-96 object-contain rounded-xl mb-6">
+                    <p class="text-gray-300 mb-6">Esta es una vista previa con marca de agua. El producto final no tendrá marca de agua.</p>
+                    <button id="preview-add-cart" class="btn-primary px-8 py-3 rounded-xl font-semibold text-white">
+                        Añadir al Carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">DV</span>
+                </div>
+                <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+                © 2024 DigitalVerse. Todos los derechos reservados.
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Política de Privacidad</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Términos de Uso</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Cookies</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script>
+        // Producto específico JavaScript
+        let productoActual = null;
+        let productosRelacionados = [];
+        let valoraciones = [
+            {
+                id: 1,
+                nombre: "María García",
+                rating: 5,
+                comentario: "Increíble calidad de imagen. Los colores son vibrantes y los detalles son impresionantes. Muy satisfecha con la compra.",
+                fecha: "2024-11-10",
+                avatar: "👩"
+            },
+            {
+                id: 2,
+                nombre: "Carlos Rodríguez",
+                rating: 4,
+                comentario: "Muy buen diseño, exactamente lo que buscaba para mi escritorio. La descarga fue rápida y sin problemas.",
+                fecha: "2024-11-08",
+                avatar: "👨"
+            },
+            {
+                id: 3,
+                nombre: "Ana Martínez",
+                rating: 5,
+                comentario: "El arte digital es simplemente hermoso. Lo uso como fondo de pantalla y recibo muchos elogios. ¡Altamente recomendado!",
+                fecha: "2024-11-05",
+                avatar: "👩‍🎨"
+            }
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarProducto();
+        });
+        
+        async function inicializarProducto() {
+            try {
+                // Obtener ID del producto de la URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const productoId = parseInt(urlParams.get('id')) || 1;
+                
+                // Cargar datos
+                await cargarDatos();
+                
+                // Cargar producto actual
+                cargarProducto(productoId);
+                
+                // Configurar eventos
+                configurarEventosProducto();
+                
+                // Inicializar zoom
+                inicializarZoom();
+                
+                // Renderizar contenido
+                renderizarProductosRelacionados();
+                renderizarValoraciones();
+                
+            } catch (error) {
+                console.error('Error al inicializar producto:', error);
+                mostrarNotificacion('Error al cargar el producto', 'error');
+            }
+        }
+        
+        function cargarProducto(productoId) {
+            productoActual = productos.find(p => p.id === productoId);
+            
+            if (!productoActual) {
+                // Producto por defecto
+                productoActual = productos[0] || {
+                    id: 1,
+                    nombre: "Cyber Forest Landscape",
+                    tipo: "fondo-escritorio",
+                    categoria: "naturaleza",
+                    precio: 0.99,
+                    imagen: "producto-1.png",
+                    descripcion: "Paisaje digital futurista con efectos holográficos y neón"
+                };
+            }
+            
+            // Actualizar UI
+            actualizarUIProducto();
+        }
+        
+        function actualizarUIProducto() {
+            if (!productoActual) return;
+            
+            const categoriaData = categorias.find(c => c.id === productoActual.categoria);
+            
+            // Actualizar elementos del DOM
+            document.getElementById('producto-categoria').textContent = categoriaData?.nombre || 'Sin categoría';
+            document.getElementById('producto-nombre').textContent = productoActual.nombre;
+            document.getElementById('producto-nombre-titulo').textContent = productoActual.nombre;
+            document.getElementById('producto-descripcion').textContent = productoActual.descripcion;
+            document.getElementById('producto-precio').textContent = `€${productoActual.precio}`;
+            
+            // Actualizar badges
+            const categoriaBadge = document.getElementById('producto-categoria-badge');
+            categoriaBadge.textContent = categoriaData?.nombre || 'Sin categoría';
+            categoriaBadge.style.backgroundColor = `${categoriaData?.color}20`;
+            categoriaBadge.style.color = categoriaData?.color;
+            categoriaBadge.style.border = `1px solid ${categoriaData?.color}40`;
+            
+            document.getElementById('producto-tipo-badge').textContent = productoActual.tipo.replace('-', ' ');
+            
+            // Actualizar imagen
+            const imagen = document.getElementById('producto-imagen');
+            imagen.src = `imagenes/${productoActual.imagen}`;
+            imagen.alt = productoActual.nombre;
+            
+            // Actualizar imagen de zoom
+            document.getElementById('zoom-result-img').src = `imagenes/${productoActual.imagen}`;
+            
+            // Actualizar miniaturas
+            renderizarThumbnails();
+        }
+        
+        function renderizarThumbnails() {
+            const thumbnailsContainer = document.getElementById('producto-thumbnails');
+            thumbnailsContainer.innerHTML = '';
+            
+            // Crear algunas miniaturas de ejemplo
+            const thumbnails = [
+                productoActual.imagen,
+                productoActual.imagen,
+                productoActual.imagen
+            ];
+            
+            thumbnails.forEach((thumb, index) => {
+                const thumbElement = document.createElement('div');
+                thumbElement.className = 'w-20 h-20 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-purple-400 transition-colors';
+                thumbElement.innerHTML = `
+                    <img src="imagenes/${thumb}" 
+                         alt="Miniatura ${index + 1}" 
+                         class="w-full h-full object-cover">
+                `;
+                
+                thumbElement.addEventListener('click', () => {
+                    // Cambiar imagen principal
+                    document.getElementById('producto-imagen').src = `imagenes/${thumb}`;
+                    
+                    // Actualizar borde activo
+                    thumbnailsContainer.querySelectorAll('div').forEach(el => {
+                        el.classList.remove('border-purple-400');
+                        el.classList.add('border-transparent');
+                    });
+                    thumbElement.classList.remove('border-transparent');
+                    thumbElement.classList.add('border-purple-400');
+                });
+                
+                thumbnailsContainer.appendChild(thumbElement);
+            });
+        }
+        
+        function renderizarProductosRelacionados() {
+            const container = document.getElementById('productos-relacionados');
+            
+            // Obtener productos relacionados
+            productosRelacionados = obtenerRecomendados(productoActual.id, 4);
+            
+            container.innerHTML = '';
+            
+            productosRelacionados.forEach(producto => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card rounded-2xl p-6 hover-lift cursor-pointer';
+                productCard.onclick = () => {
+                    window.location.href = `producto.html?id=${producto.id}`;
+                };
+                
+                const categoriaData = categorias.find(c => c.id === producto.categoria);
+                
+                productCard.innerHTML = `
+                    <div class="aspect-square mb-4 overflow-hidden rounded-xl">
+                        <img src="imagenes/${producto.imagen}" 
+                             alt="${producto.nombre}"
+                             class="w-full h-full object-cover"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjMWUyOTNiIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNjQ3NDhiIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCI+SW1hZ2VuIG5vIGRpc3BvbmlibGU8L3RleHQ+Cjwvc3ZnPg=='">
+                    </div>
+                    <div class="mb-3">
+                        <span class="inline-block px-2 py-1 text-xs rounded-full mb-2" 
+                              style="background-color: ${categoriaData?.color}20; color: ${categoriaData?.color}">
+                            ${categoriaData?.icono} ${categoriaData?.nombre}
+                        </span>
+                    </div>
+                    <h3 class="font-accent font-semibold text-lg mb-2 text-white">${producto.nombre}</h3>
+                    <p class="text-gray-300 text-sm mb-4 line-clamp-2">${producto.descripcion}</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xl font-bold text-green-400">€${producto.precio}</span>
+                        <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm capitalize">
+                            ${producto.tipo.replace('-', ' ')}
+                        </span>
+                    </div>
+                    <button class="w-full btn-primary py-3 rounded-xl font-semibold text-white">
+                        Ver Producto
+                    </button>
+                `;
+                
+                container.appendChild(productCard);
+            });
+        }
+        
+        function renderizarValoraciones() {
+            const container = document.getElementById('valoraciones');
+            container.innerHTML = '';
+            
+            valoraciones.forEach(valoracion => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card rounded-2xl p-6 reveal';
+                
+                const stars = '★'.repeat(valoracion.rating) + '☆'.repeat(5 - valoracion.rating);
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-start space-x-4 mb-4">
+                        <div class="text-3xl">${valoracion.avatar}</div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white mb-1">${valoracion.nombre}</h4>
+                            <div class="rating-stars text-sm mb-2">${stars}</div>
+                            <p class="text-gray-300 text-sm leading-relaxed">${valoracion.comentario}</p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-400">
+                        ${new Date(valoracion.fecha).toLocaleDateString('es-ES')}
+                    </div>
+                `;
+                
+                container.appendChild(reviewCard);
+            });
+        }
+        
+        function configurarEventosProducto() {
+            // Añadir al carrito
+            document.getElementById('btn-add-cart').addEventListener('click', () => {
+                agregarAlCarrito(productoActual.id);
+            });
+            
+            // Comprar ahora
+            document.getElementById('btn-buy-now').addEventListener('click', () => {
+                agregarAlCarrito(productoActual.id);
+                // Redirigir al checkout
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            });
+            
+            // Vista previa
+            document.getElementById('btn-preview').addEventListener('click', () => {
+                mostrarVistaPrevia();
+            });
+            
+            // Compartir
+            document.getElementById('btn-share').addEventListener('click', () => {
+                compartirProducto(productoActual.id);
+            });
+            
+            // Favorito
+            document.getElementById('btn-wishlist').addEventListener('click', () => {
+                toggleFavorito();
+            });
+            
+            // Formulario de valoración
+            document.getElementById('form-valoracion').addEventListener('submit', (e) => {
+                e.preventDefault();
+                enviarValoracion();
+            });
+            
+            // Rating input
+            document.querySelectorAll('#rating-input button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const rating = parseInt(e.target.getAttribute('data-rating'));
+                    actualizarRatingVisual(rating);
+                });
+            });
+            
+            // Modal de vista previa
+            document.getElementById('preview-overlay').addEventListener('click', cerrarVistaPrevia);
+            document.getElementById('close-preview').addEventListener('click', cerrarVistaPrevia);
+            document.getElementById('preview-add-cart').addEventListener('click', () => {
+                agregarAlCarrito(productoActual.id);
+                cerrarVistaPrevia();
+            });
+        }
+        
+        function mostrarVistaPrevia() {
+            const modal = document.getElementById('preview-modal');
+            const previewImage = document.getElementById('preview-image');
+            
+            previewImage.src = `imagenes/${productoActual.imagen}`;
+            modal.classList.remove('hidden');
+            
+            // Animar entrada
+            anime({
+                targets: modal.querySelector('.glass-effect'),
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuart'
+            });
+        }
+        
+        function cerrarVistaPrevia() {
+            const modal = document.getElementById('preview-modal');
+            
+            anime({
+                targets: modal.querySelector('.glass-effect'),
+                scale: [1, 0.8],
+                opacity: [1, 0],
+                duration: 200,
+                easing: 'easeInQuart',
+                complete: () => {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+        
+        function toggleFavorito() {
+            const btn = document.getElementById('btn-wishlist');
+            const icon = btn.querySelector('svg');
+            
+            if (btn.classList.contains('text-red-400')) {
+                btn.classList.remove('text-red-400');
+                btn.classList.add('text-gray-400');
+                icon.setAttribute('fill', 'none');
+                mostrarNotificacion('Eliminado de favoritos', 'info');
+            } else {
+                btn.classList.remove('text-gray-400');
+                btn.classList.add('text-red-400');
+                icon.setAttribute('fill', 'currentColor');
+                mostrarNotificacion('Añadido a favoritos', 'success');
+            }
+        }
+        
+        function actualizarRatingVisual(rating) {
+            const stars = document.querySelectorAll('#rating-input button');
+            
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('text-gray-400');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-400');
+                }
+            });
+        }
+        
+        function enviarValoracion() {
+            const comentario = document.getElementById('comentario-input').value.trim();
+            const rating = document.querySelectorAll('#rating-input button.text-yellow-400').length;
+            
+            if (!comentario) {
+                mostrarNotificacion('Por favor escribe un comentario', 'error');
+                return;
+            }
+            
+            if (rating === 0) {
+                mostrarNotificacion('Por favor selecciona una puntuación', 'error');
+                return;
+            }
+            
+            // Crear nueva valoración
+            const nuevaValoracion = {
+                id: valoraciones.length + 1,
+                nombre: "Usuario Anónimo",
+                rating: rating,
+                comentario: comentario,
+                fecha: new Date().toISOString().split('T')[0],
+                avatar: "👤"
+            };
+            
+            // Añadir a la lista
+            valoraciones.unshift(nuevaValoracion);
+            
+            // Volver a renderizar
+            renderizarValoraciones();
+            
+            // Limpiar formulario
+            document.getElementById('comentario-input').value = '';
+            actualizarRatingVisual(0);
+            
+            mostrarNotificacion('Valoración enviada correctamente', 'success');
+        }
+        
+        function inicializarZoom() {
+            const container = document.getElementById('image-container');
+            const lens = document.getElementById('zoom-lens');
+            const result = document.getElementById('zoom-result');
+            const img = document.getElementById('producto-imagen');
+            
+            container.addEventListener('mouseenter', () => {
+                lens.style.display = 'block';
+                result.style.display = 'block';
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                lens.style.display = 'none';
+                result.style.display = 'none';
+            });
+            
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Posicionar lente
+                lens.style.left = (x - 75) + 'px';
+                lens.style.top = (y - 75) + 'px';
+                
+                // Calcular posición del resultado
+                const resultX = x + 100;
+                const resultY = y - 150;
+                
+                result.style.left = resultX + 'px';
+                result.style.top = resultY + 'px';
+                
+                // Calcular proporción de zoom
+                const fx = img.naturalWidth / img.width;
+                const fy = img.naturalHeight / img.height;
+                
+                // Aplicar transformación de zoom
+                const zoomImg = document.getElementById('zoom-result-img');
+                zoomImg.style.transform = `scale(${fx * 2}) translate(${-x + 75}px, ${-y + 75}px)`;
+            });
+        }
+    </script>
+</body>
+</html>

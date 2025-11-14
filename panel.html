@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Usuario - DigitalVerse</title>
+    <meta name="description" content="Gestiona tu cuenta, descargas, suscripciones y personaliza tu experiencia en DigitalVerse.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de animación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --neon-green: #10B981;
+            --purple-accent: #8B5CF6;
+            --dark-bg: #0F172A;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-accent {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar-menu a.active {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            color: white;
+        }
+        
+        .sidebar-menu svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .content-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .product-item:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .download-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .download-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .download-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .subscription-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(37, 99, 235, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .subscription-card.premium {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .coupon-card {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            height: 100%;
+            border-radius: 1rem;
+            transition: width 0.3s ease;
+        }
+        
+        .notification-badge {
+            background: #EF4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .modal {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de Partículas -->
+    <div id="particle-container" class="particle-bg"></div>
+    
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-blue-400 transition-colors font-medium">Inicio</a>
+                    <a href="catalogo.html" class="text-white hover:text-blue-400 transition-colors font-medium">Catálogo</a>
+                    <a href="planes.html" class="text-white hover:text-blue-400 transition-colors font-medium">Planes</a>
+                    <a href="generador.html" class="text-white hover:text-blue-400 transition-colors font-medium">Generador IA</a>
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                <span id="user-avatar" class="text-white font-bold text-sm">U</span>
+                            </div>
+                            <span id="user-name" class="font-medium">Usuario</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Menú de Usuario -->
+                        <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 glass-effect rounded-xl py-2 z-50">
+                            <a href="panel.html" class="block px-4 py-2 text-white hover:bg-white/10">Mi Panel</a>
+                            <a href="#" onclick="cerrarSesion()" class="block px-4 py-2 text-white hover:bg-white/10">Cerrar Sesión</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Contenido Principal -->
+    <section class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header del Panel -->
+            <div class="text-center mb-8 reveal">
+                <h1 class="font-display font-bold text-4xl mb-4 gradient-text">Panel de Usuario</h1>
+                <p class="text-xl text-gray-300">Bienvenido a tu espacio personal</p>
+            </div>
+            
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="sidebar reveal">
+                        <!-- Perfil -->
+                        <div class="text-center mb-6">
+                            <div class="avatar" id="user-avatar-large">
+                                <span id="user-initial">U</span>
+                            </div>
+                            <h3 class="font-bold text-xl text-white mb-1" id="user-fullname">Usuario</h3>
+                            <p class="text-gray-400 text-sm" id="user-email">usuario@email.com</p>
+                            <div class="mt-2">
+                                <span class="premium-badge" id="user-plan">Plan Básico</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Menú -->
+                        <ul class="sidebar-menu">
+                            <li>
+                                <a href="#" class="active" data-section="dashboard">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
+                                    </svg>
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="downloads">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Mis Descargas
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="subscription">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Suscripción
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="promotions">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                    </svg>
+                                    Promociones
+                                    <span class="notification-badge" id="promo-badge">3</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="settings">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Configuración
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Contenido Principal -->
+                <div class="lg:col-span-3">
+                    <!-- Dashboard -->
+                    <div id="dashboard-section" class="section-content">
+                        <!-- Estadísticas -->
+                        <div class="grid md:grid-cols-3 gap-6 mb-8 reveal">
+                            <div class="stat-card">
+                                <div class="stat-number text-green-400" id="total-downloads">0</div>
+                                <div class="text-gray-300">Descargas Totales</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number text-blue-400" id="total-spent">€0</div>
+                                <div class="text-gray-300">Total Gastado</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number text-purple-400" id="credits-available">0</div>
+                                <div class="text-gray-300">Créditos Disponibles</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gráfico de Uso -->
+                        <div class="content-card reveal">
+                            <h3 class="font-accent font-bold text-xl mb-6 text-white">Actividad Reciente</h3>
+                            <div id="activity-chart" style="width: 100%; height: 300px;"></div>
+                        </div>
+                        
+                        <!-- Productos Recientes -->
+                        <div class="content-card reveal">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-accent font-bold text-xl text-white">Últimas Descargas</h3>
+                                <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors">Ver todas</a>
+                            </div>
+                            <div id="recent-downloads">
+                                <!-- Los productos se cargarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mis Descargas -->
+                    <div id="downloads-section" class="section-content hidden">
+                        <div class="content-card reveal">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-accent font-bold text-xl text-white">Mis Descargas</h3>
+                                <div class="flex space-x-2">
+                                    <button class="btn-secondary px-4 py-2 rounded-lg text-white text-sm">Filtrar</button>
+                                    <button class="btn-secondary px-4 py-2 rounded-lg text-white text-sm">Ordenar</button>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4" id="downloads-list">
+                                <!-- Las descargas se cargarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Suscripción -->
+                    <div id="subscription-section" class="section-content hidden">
+                        <div class="content-card reveal">
+                            <h3 class="font-accent font-bold text-xl mb-6 text-white">Mi Suscripción</h3>
+                            
+                            <div class="subscription-card mb-6" id="current-plan">
+                                <h4 class="font-bold text-2xl mb-2 text-white">Plan Básico</h4>
+                                <p class="text-gray-300 mb-4">Tu plan actual te permite 10 descargas mensuales</p>
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-2xl font-bold text-green-400">€4.99/mes</span>
+                                    <span class="text-sm text-gray-400">Renueva el 15/12/2024</span>
+                                </div>
+                                <div class="progress-bar mb-4">
+                                    <div class="progress-fill" style="width: 70%"></div>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-4">7 de 10 descargas usadas este mes</p>
+                                <div class="flex space-x-3">
+                                    <button class="btn-primary px-6 py-2 rounded-lg text-white">Cambiar Plan</button>
+                                    <button class="btn-secondary px-6 py-2 rounded-lg text-white">Cancelar</button>
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="content-card">
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Historial de Pagos</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Diciembre 2024</span>
+                                            <span class="text-green-400">€4.99</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Noviembre 2024</span>
+                                            <span class="text-green-400">€4.99</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Octubre 2024</span>
+                                            <span class="text-green-400">€4.99</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="content-card">
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Método de Pago</h4>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                            <span class="text-white font-bold">PP</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-white font-medium">PayPal</p>
+                                            <p class="text-gray-400 text-sm">usuario@email.com</p>
+                                        </div>
+                                    </div>
+                                    <button class="btn-secondary w-full mt-4 py-2 rounded-lg text-white">Cambiar Método</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Promociones -->
+                    <div id="promotions-section" class="section-content hidden">
+                        <div class="content-card reveal">
+                            <h3 class="font-accent font-bold text-xl mb-6 text-white">Mis Promociones</h3>
+                            
+                            <div class="space-y-4" id="promotions-list">
+                                <div class="coupon-card">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 class="font-semibold text-white">Cupon de Bienvenida</h4>
+                                            <p class="text-gray-300 text-sm">20% de descuento en tu próxima compra</p>
+                                        </div>
+                                        <span class="text-xs text-gray-400">Nuevo</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <code class="bg-white/10 px-3 py-1 rounded text-yellow-400 font-mono">BIENVENIDO20</code>
+                                        <span class="text-sm text-gray-400">Expira: 15/01/2025</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="coupon-card">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 class="font-semibold text-white">Navidad 2024</h4>
+                                            <p class="text-gray-300 text-sm">25% de descuento en todos los productos</p>
+                                        </div>
+                                        <span class="text-xs text-gray-400">Limitado</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <code class="bg-white/10 px-3 py-1 rounded text-yellow-400 font-mono">NAVIDAD25</code>
+                                        <span class="text-sm text-gray-400">Expira: 31/12/2024</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="coupon-card">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 class="font-semibold text-white">5ª Compra Gratis</h4>
+                                            <p class="text-gray-300 text-sm">Obtén un producto gratuito en tu 5ª compra</p>
+                                        </div>
+                                        <span class="text-xs text-gray-400">Automático</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-400">Progreso: 3/5 compras</span>
+                                        <div class="progress-bar w-24">
+                                            <div class="progress-fill" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración -->
+                    <div id="settings-section" class="section-content hidden">
+                        <div class="content-card reveal">
+                            <h3 class="font-accent font-bold text-xl mb-6 text-white">Configuración de Cuenta</h3>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Información Personal</h4>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
+                                            <input type="text" id="settings-firstname" class="form-input w-full px-4 py-3 rounded-xl text-white" value="Usuario">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Apellidos</label>
+                                            <input type="text" id="settings-lastname" class="form-input w-full px-4 py-3 rounded-xl text-white" value="Demo">
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                                        <input type="email" id="settings-email" class="form-input w-full px-4 py-3 rounded-xl text-white" value="usuario@demo.com" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Preferencias</h4>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded text-purple-500 focus:ring-purple-400" checked>
+                                            <span class="ml-3 text-gray-300">Recibir notificaciones de nuevos productos</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded text-purple-500 focus:ring-purple-400" checked>
+                                            <span class="ml-3 text-gray-300">Recibir promociones por email</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="rounded text-purple-500 focus:ring-purple-400">
+                                            <span class="ml-3 text-gray-300">Modo oscuro automático</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Seguridad</h4>
+                                    <button class="btn-secondary px-6 py-3 rounded-xl text-white">Cambiar Contraseña</button>
+                                    <button class="btn-secondary px-6 py-3 rounded-xl text-white ml-3">Ver Historial de Login</button>
+                                </div>
+                                
+                                <div class="flex space-x-3 pt-6">
+                                    <button class="btn-primary px-6 py-3 rounded-xl text-white">Guardar Cambios</button>
+                                    <button class="btn-secondary px-6 py-3 rounded-xl text-white">Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">DV</span>
+                </div>
+                <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+                © 2024 DigitalVerse. Todos los derechos reservados.
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Política de Privacidad</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Términos de Uso</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Cookies</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script>
+        // Panel específico JavaScript
+        let usuarioActual = null;
+        let seccionActual = 'dashboard';
+        let comprasUsuario = [];
+        let descargasUsuario = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarPanel();
+        });
+        
+        function inicializarPanel() {
+            // Verificar autenticación
+            usuarioActual = JSON.parse(localStorage.getItem('usuario'));
+            
+            if (!usuarioActual) {
+                mostrarNotificacion('Debes iniciar sesión para acceder al panel', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            // Cargar datos del usuario
+            cargarDatosUsuario();
+            
+            // Configurar eventos
+            configurarEventosPanel();
+            
+            // Mostrar sección inicial
+            mostrarSeccion('dashboard');
+            
+            // Actualizar UI con datos del usuario
+            actualizarUIUsuario();
+        }
+        
+        function cargarDatosUsuario() {
+            // Cargar compras del usuario
+            const todasLasCompras = JSON.parse(localStorage.getItem('compras')) || [];
+            comprasUsuario = todasLasCompras.filter(c => c.usuarioId === usuarioActual.id);
+            
+            // Cargar descargas del usuario
+            descargasUsuario = JSON.parse(localStorage.getItem(`descargas_${usuarioActual.id}`)) || [];
+            
+            // Generar datos de ejemplo si no existen
+            if (comprasUsuario.length === 0) {
+                generarDatosEjemplo();
+            }
+        }
+        
+        function generarDatosEjemplo() {
+            const productosEjemplo = [
+                { id: 1, nombre: "Cyber Forest Landscape", precio: 0.99, imagen: "producto-1.png" },
+                { id: 2, nombre: "Cyberpunk Anime City", precio: 0.99, imagen: "producto-2.png" },
+                { id: 3, nombre: "Christmas Holographic Card", precio: 1.99, imagen: "producto-3.png" }
+            ];
+            
+            // Generar compras de ejemplo
+            productosEjemplo.forEach((producto, index) => {
+                const compra = {
+                    id: Date.now() + index,
+                    usuarioId: usuarioActual.id,
+                    productoId: producto.id,
+                    producto: producto,
+                    fecha: new Date(Date.now() - (index + 1) * 24 * 60 * 60 * 1000).toISOString(),
+                    precio: producto.precio,
+                    metodoPago: usuarioActual.metodoPago || 'paypal'
+                };
+                comprasUsuario.push(compra);
+                
+                // Generar descarga correspondiente
+                const descarga = {
+                    id: Date.now() + index,
+                    productoId: producto.id,
+                    producto: producto,
+                    fechaCompra: compra.fecha,
+                    fechaDescarga: compra.fecha,
+                    descargado: true
+                };
+                descargasUsuario.push(descarga);
+            });
+            
+            // Guardar en localStorage
+            localStorage.setItem(`descargas_${usuarioActual.id}`, JSON.stringify(descargasUsuario));
+        }
+        
+        function configurarEventosPanel() {
+            // Menú de usuario
+            document.getElementById('user-menu-btn').addEventListener('click', toggleUserMenu);
+            
+            // Menú lateral
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const seccion = e.currentTarget.dataset.section;
+                    mostrarSeccion(seccion);
+                });
+            });
+            
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                const userMenu = document.getElementById('user-menu');
+                const userMenuBtn = document.getElementById('user-menu-btn');
+                
+                if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        }
+        
+        function toggleUserMenu() {
+            const menu = document.getElementById('user-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        function mostrarSeccion(seccion) {
+            seccionActual = seccion;
+            
+            // Actualizar menú activo
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${seccion}"]`).classList.add('active');
+            
+            // Mostrar/ocultar secciones
+            document.querySelectorAll('.section-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${seccion}-section`).classList.remove('hidden');
+            
+            // Cargar contenido específico de la sección
+            switch (seccion) {
+                case 'dashboard':
+                    cargarDashboard();
+                    break;
+                case 'downloads':
+                    cargarDescargas();
+                    break;
+                case 'subscription':
+                    cargarSuscripcion();
+                    break;
+                case 'promotions':
+                    cargarPromociones();
+                    break;
+                case 'settings':
+                    cargarConfiguracion();
+                    break;
+            }
+        }
+        
+        function actualizarUIUsuario() {
+            // Actualizar navegación
+            document.getElementById('user-name').textContent = usuarioActual.nombre;
+            document.getElementById('user-avatar').textContent = usuarioActual.nombre.charAt(0).toUpperCase();
+            
+            // Actualizar sidebar
+            document.getElementById('user-initial').textContent = usuarioActual.nombre.charAt(0).toUpperCase();
+            document.getElementById('user-fullname').textContent = `${usuarioActual.nombre} ${usuarioActual.apellidos || ''}`;
+            document.getElementById('user-email').textContent = usuarioActual.email;
+            
+            // Actualizar plan
+            const planText = usuarioActual.tipoPlan === 'premium' ? 'Plan Premium' : 
+                           usuarioActual.tipoPlan === 'empresarial' ? 'Plan Empresarial' : 'Plan Básico';
+            document.getElementById('user-plan').textContent = planText;
+            
+            if (usuarioActual.tipoPlan === 'premium') {
+                document.getElementById('user-plan').className = 'premium-badge';
+            } else {
+                document.getElementById('user-plan').className = 'px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm';
+            }
+        }
+        
+        function cargarDashboard() {
+            // Actualizar estadísticas
+            const totalDescargas = descargasUsuario.filter(d => d.descargado).length;
+            const totalGastado = comprasUsuario.reduce((sum, c) => sum + c.precio, 0);
+            const creditos = usuarioActual.creditos || 0;
+            
+            document.getElementById('total-downloads').textContent = totalDescargas;
+            document.getElementById('total-spent').textContent = `€${totalGastado.toFixed(2)}`;
+            document.getElementById('credits-available').textContent = creditos;
+            
+            // Cargar gráfico de actividad
+            cargarGraficoActividad();
+            
+            // Cargar descargas recientes
+            cargarDescargasRecientes();
+        }
+        
+        function cargarGraficoActividad() {
+            const chartDom = document.getElementById('activity-chart');
+            const myChart = echarts.init(chartDom);
+            
+            // Generar datos de los últimos 7 días
+            const fechas = [];
+            const descargas = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const fecha = new Date();
+                fecha.setDate(fecha.getDate() - i);
+                fechas.push(fecha.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }));
+                
+                // Simular datos de descargas
+                descargas.push(Math.floor(Math.random() * 5) + 1);
+            }
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderColor: 'rgba(139, 92, 246, 0.3)',
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: fechas,
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9CA3AF'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9CA3AF'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    data: descargas,
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        color: '#8B5CF6',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#8B5CF6'
+                    },
+                    areaStyle: {
+                        color: 'rgba(139, 92, 246, 0.2)'
+                    }
+                }]
+            };
+            
+            myChart.setOption(option);
+            
+            // Hacer el gráfico responsive
+            window.addEventListener('resize', () => {
+                myChart.resize();
+            });
+        }
+        
+        function cargarDescargasRecientes() {
+            const container = document.getElementById('recent-downloads');
+            const descargasRecientes = descargasUsuario.slice(0, 3);
+            
+            if (descargasRecientes.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">No tienes descargas aún</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            descargasRecientes.forEach(descarga => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-gray-700 rounded-lg overflow-hidden">
+                            <img src="imagenes/${descarga.producto.imagen}" 
+                                 alt="${descarga.producto.nombre}"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMzc0MTUxIi8+Cjx0ZXh0IHg9IjMyIiB5PSIzNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzY0NzQ4YiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiPkltYWdlbjwvdGV4dD4KPC9zdmc+'">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white">${descarga.producto.nombre}</h4>
+                            <p class="text-gray-400 text-sm">Comprado el ${new Date(descarga.fechaCompra).toLocaleDateString()}</p>
+                        </div>
+                        <button class="download-btn" onclick="descargarProducto('${descarga.producto.imagen}', '${descarga.producto.nombre}')">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Descargar
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function cargarDescargas() {
+            const container = document.getElementById('downloads-list');
+            
+            if (descargasUsuario.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">No tienes descargas aún</p>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            descargasUsuario.forEach(descarga => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <div class="w-20 h-20 bg-gray-700 rounded-lg overflow-hidden">
+                            <img src="imagenes/${descarga.producto.imagen}" 
+                                 alt="${descarga.producto.nombre}"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMzc0MTUxIi8+Cjx0ZXh0IHg9IjQwIiB5PSI0NCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzY0NzQ4YiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiPkltYWdlbjwvdGV4dD4KPC9zdmc+'">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-white mb-1">${descarga.producto.nombre}</h4>
+                            <p class="text-gray-400 text-sm mb-1">Precio: €${descarga.producto.precio}</p>
+                            <p class="text-gray-400 text-sm">Comprado: ${new Date(descarga.fechaCompra).toLocaleDateString()}</p>
+                        </div>
+                        <div class="text-right">
+                            <button class="download-btn mb-2" onclick="descargarProducto('${descarga.producto.imagen}', '${descarga.producto.nombre}')">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Descargar
+                            </button>
+                            <button class="btn-secondary px-3 py-1 rounded-lg text-white text-sm" onclick="compartirProducto('${descarga.producto.nombre}')">
+                                Compartir
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function cargarSuscripcion() {
+            // La suscripción ya está cargada en el HTML
+            // Aquí podrías agregar lógica adicional si es necesario
+        }
+        
+        function cargarPromociones() {
+            // Las promociones ya están cargadas en el HTML
+            // Limpiar badge de notificaciones
+            document.getElementById('promo-badge').style.display = 'none';
+        }
+        
+        function cargarConfiguracion() {
+            // Cargar datos actuales en el formulario
+            document.getElementById('settings-firstname').value = usuarioActual.nombre;
+            document.getElementById('settings-lastname').value = usuarioActual.apellidos || '';
+            document.getElementById('settings-email').value = usuarioActual.email;
+        }
+        
+        function descargarProducto(imagenSrc, nombreProducto) {
+            // Simular descarga
+            const link = document.createElement('a');
+            link.href = `imagenes/${imagenSrc}`;
+            link.download = `${nombreProducto.replace(/\s+/g, '_')}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            mostrarNotificacion(`${nombreProducto} descargado correctamente`, 'success');
+            
+            // Registrar descarga
+            const descargaExistente = descargasUsuario.find(d => d.producto.nombre === nombreProducto);
+            if (descargaExistente) {
+                descargaExistente.fechaDescarga = new Date().toISOString();
+                localStorage.setItem(`descargas_${usuarioActual.id}`, JSON.stringify(descargasUsuario));
+            }
+        }
+        
+        function compartirProducto(nombreProducto) {
+            if (navigator.share) {
+                navigator.share({
+                    title: nombreProducto,
+                    text: `Mira este increíble producto que encontré en DigitalVerse`,
+                    url: window.location.origin
+                });
+            } else {
+                navigator.clipboard.writeText(`${nombreProducto} - ${window.location.origin}`).then(() => {
+                    mostrarNotificacion('Enlace copiado al portapapeles', 'success');
+                });
+            }
+        }
+        
+        function cerrarSesion() {
+            localStorage.removeItem('usuario');
+            mostrarNotificacion('Sesión cerrada correctamente', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

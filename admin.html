@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - DigitalVerse</title>
+    <meta name="description" content="Panel de administración completo para gestionar DigitalVerse. Control de productos, usuarios, estadísticas y configuración del generador IA.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de animación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --neon-green: #10B981;
+            --purple-accent: #8B5CF6;
+            --dark-bg: #0F172A;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-accent {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .admin-sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .admin-menu {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .admin-menu li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .admin-menu a.active {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            color: white;
+        }
+        
+        .admin-menu svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
+        
+        .admin-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .table-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .admin-table th {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #E5E7EB;
+        }
+        
+        .admin-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .form-input {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            border: none;
+        }
+        
+        .action-btn.edit {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60A5FA;
+        }
+        
+        .action-btn.edit:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+        
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+        }
+        
+        .action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34D399;
+        }
+        
+        .status-badge.inactive {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9CA3AF;
+        }
+        
+        .status-badge.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #FBBF24;
+        }
+        
+        .modal {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .prompt-editor {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .prompt-textarea {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            width: 100%;
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        .prompt-textarea:focus {
+            outline: none;
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+        
+        .generation-preview {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--purple-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de Partículas -->
+    <div id="particle-container" class="particle-bg"></div>
+    
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                    <span class="text-sm text-gray-400 ml-2">Admin</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-blue-400 transition-colors font-medium">Ver Sitio</a>
+                    <div class="relative">
+                        <button id="admin-menu-btn" class="flex items-center space-x-2 text-white hover:text-blue-400 transition-colors">
+                            <div class="w-8 h-8 bg-gradient-to-r from-red-500 to-orange-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold text-sm">A</span>
+                            </div>
+                            <span class="font-medium">Admin</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Menú de Admin -->
+                        <div id="admin-menu" class="hidden absolute right-0 mt-2 w-48 glass-effect rounded-xl py-2 z-50">
+                            <a href="panel.html" class="block px-4 py-2 text-white hover:bg-white/10">Mi Panel</a>
+                            <a href="#" onclick="cerrarSesionAdmin()" class="block px-4 py-2 text-white hover:bg-white/10">Cerrar Sesión</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Contenido Principal -->
+    <section class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header del Panel -->
+            <div class="text-center mb-8 reveal">
+                <h1 class="font-display font-bold text-4xl mb-4 gradient-text">Panel de Administración</h1>
+                <p class="text-xl text-gray-300">Control total sobre DigitalVerse</p>
+            </div>
+            
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="admin-sidebar reveal">
+                        <!-- Información del Admin -->
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <span class="text-white font-bold text-2xl">A</span>
+                            </div>
+                            <h3 class="font-bold text-xl text-white mb-1">Administrador</h3>
+                            <p class="text-gray-400 text-sm">Control Total</p>
+                        </div>
+                        
+                        <!-- Menú -->
+                        <ul class="admin-menu">
+                            <li>
+                                <a href="#" class="active" data-section="dashboard">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="products">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                    Productos
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="users">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                    </svg>
+                                    Usuarios
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="orders">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                                    </svg>
+                                    Pedidos
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="generator">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                    Generador IA
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="analytics">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Analytics
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="settings">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Configuración
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Contenido Principal -->
+                <div class="lg:col-span-3">
+                    <!-- Dashboard -->
+                    <div id="dashboard-section" class="admin-section">
+                        <!-- Estadísticas Generales -->
+                        <div class="grid md:grid-cols-4 gap-6 mb-8 reveal">
+                            <div class="stat-card">
+                                <div class="stat-number text-blue-400" id="total-users">0</div>
+                                <div class="text-gray-300">Usuarios Totales</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number text-green-400" id="total-products">0</div>
+                                <div class="text-gray-300">Productos</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number text-purple-400" id="total-orders">0</div>
+                                <div class="text-gray-300">Pedidos</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number text-yellow-400" id="total-revenue">€0</div>
+                                <div class="text-gray-300">Ingresos</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gráficos -->
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <div class="admin-card reveal">
+                                <h3 class="font-accent font-bold text-xl mb-6 text-white">Ventas por Mes</h3>
+                                <div id="sales-chart" style="width: 100%; height: 300px;"></div>
+                            </div>
+                            
+                            <div class="admin-card reveal">
+                                <h3 class="font-accent font-bold text-xl mb-6 text-white">Distribución de Usuarios</h3>
+                                <div id="users-chart" style="width: 100%; height: 300px;"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Actividad Reciente -->
+                        <div class="admin-card reveal">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-accent font-bold text-xl text-white">Actividad Reciente</h3>
+                                <button class="btn-secondary px-4 py-2 rounded-lg text-white text-sm">Ver Todo</button>
+                            </div>
+                            <div id="recent-activity">
+                                <!-- La actividad se cargará dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Productos -->
+                    <div id="products-section" class="admin-section hidden">
+                        <div class="admin-card reveal">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-accent font-bold text-xl text-white">Gestión de Productos</h3>
+                                <button class="btn-primary px-4 py-2 rounded-lg text-white text-sm" onclick="abrirModalProducto()">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Nuevo Producto
+                                </button>
+                            </div>
+                            
+                            <div class="table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th>Categoría</th>
+                                            <th>Precio</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="products-table-body">
+                                        <!-- Los productos se cargarán dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Usuarios -->
+                    <div id="users-section" class="admin-section hidden">
+                        <div class="admin-card reveal">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-accent font-bold text-xl text-white">Gestión de Usuarios</h3>
+                                <div class="flex space-x-2">
+                                    <button class="btn-secondary px-4 py-2 rounded-lg text-white text-sm">Filtrar</button>
+                                    <button class="btn-secondary px-4 py-2 rounded-lg text-white text-sm">Exportar</button>
+                                </div>
+                            </div>
+                            
+                            <div class="table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Nombre</th>
+                                            <th>Email</th>
+                                            <th>Plan</th>
+                                            <th>Fecha Registro</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table-body">
+                                        <!-- Los usuarios se cargarán dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Generador IA -->
+                    <div id="generator-section" class="admin-section hidden">
+                        <div class="admin-card reveal">
+                            <h3 class="font-accent font-bold text-xl mb-6 text-white">Configuración del Generador IA</h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Prompt Base</h4>
+                                    <div class="prompt-editor">
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Plantilla de Prompt</label>
+                                        <textarea id="prompt-template" class="prompt-textarea" placeholder="Edita el prompt base para el generador IA...">Ultra-detailed digital {tipo_producto} in {tema}, 8K resolution, cinematic lighting, highly detailed, sharp focus, ultra realistic, trending on ArtStation, clean composition, no text, no nsfw, no violence</textarea>
+                                        
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Variables Disponibles</label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">{tipo_producto}</span>
+                                                <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">{tema}</span>
+                                                <span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">{estilo}</span>
+                                                <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs">{color_principal}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex space-x-2 mt-4">
+                                            <button class="btn-primary px-4 py-2 rounded-lg text-white text-sm" onclick="guardarPrompt()">Guardar Cambios</button>
+                                            <button class="btn-secondary px-4 py-2 rounded-lg text-white text-sm" onclick="probarPrompt()">Probar Prompt</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Configuración de Generación</h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Imágenes por tipo y tema</label>
+                                            <input type="number" id="images-per-category" class="form-input w-full px-4 py-3 rounded-xl text-white" value="10" min="1" max="50">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Frecuencia de generación</label>
+                                            <select id="generation-frequency" class="form-input w-full px-4 py-3 rounded-xl text-white">
+                                                <option value="daily">Diaria</option>
+                                                <option value="weekly" selected>Semanal</option>
+                                                <option value="monthly">Mensual</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Calidad de imagen</label>
+                                            <select id="image-quality" class="form-input w-full px-4 py-3 rounded-xl text-white">
+                                                <option value="standard">Estándar</option>
+                                                <option value="high" selected>Alta</option>
+                                                <option value="ultra">Ultra</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" id="auto-approve" class="rounded text-purple-500 focus:ring-purple-400">
+                                            <label for="auto-approve" class="text-gray-300">Aprobación automática</label>
+                                        </div>
+                                        
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" id="watermark-protection" class="rounded text-purple-500 focus:ring-purple-400" checked>
+                                            <label for="watermark-protection" class="text-gray-300">Protección con marca de agua</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Control de Generación -->
+                            <div class="mt-8 p-4 bg-white/5 rounded-xl">
+                                <h4 class="font-semibold text-lg mb-4 text-white">Control de Generación</h4>
+                                <div class="flex space-x-3">
+                                    <button class="btn-primary px-6 py-3 rounded-xl text-white" onclick="iniciarGeneracion()">
+                                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10V9a2 2 0 012-2h2a2 2 0 012 2v1M9 10v5a2 2 0 002 2h2a2 2 0 002-2v-5"></path>
+                                        </svg>
+                                        Generar Ahora
+                                    </button>
+                                    <button class="btn-secondary px-6 py-3 rounded-xl text-white" onclick="programarGeneracion()">
+                                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Programar
+                                    </button>
+                                    <button class="btn-danger px-6 py-3 rounded-xl text-white" onclick="detenerGeneracion()">
+                                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10h6v4H9z"></path>
+                                        </svg>
+                                        Detener
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-4 text-sm text-gray-400">
+                                    <p>Estado: <span id="generation-status" class="text-green-400">Listo</span></p>
+                                    <p>Última generación: <span id="last-generation">Nunca</span></p>
+                                    <p>Próxima generación: <span id="next-generation">No programada</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Analytics -->
+                    <div id="analytics-section" class="admin-section hidden">
+                        <div class="admin-card reveal">
+                            <h3 class="font-accent font-bold text-xl mb-6 text-white">Analytics Avanzados</h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Rendimiento del Sitio</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Tiempo de carga promedio</span>
+                                            <span class="text-green-400">1.2s</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Tasa de rebote</span>
+                                            <span class="text-yellow-400">32%</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Páginas por sesión</span>
+                                            <span class="text-blue-400">4.7</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Tiempo en sitio</span>
+                                            <span class="text-purple-400">6m 42s</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Conversiones</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Tasa de conversión</span>
+                                            <span class="text-green-400">12.5%</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Valor promedio de pedido</span>
+                                            <span class="text-blue-400">€8.99</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Tasa de abandono de carrito</span>
+                                            <span class="text-red-400">28%</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Clientes recurrentes</span>
+                                            <span class="text-purple-400">45%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="font-semibold text-lg mb-4 text-white">Fuentes de Tráfico</h4>
+                                <div id="traffic-chart" style="width: 100%; height: 300px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración -->
+                    <div id="settings-section" class="admin-section hidden">
+                        <div class="admin-card reveal">
+                            <h3 class="font-accent font-bold text-xl mb-6 text-white">Configuración del Sistema</h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">General</h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Nombre del Sitio</label>
+                                            <input type="text" class="form-input w-full px-4 py-3 rounded-xl text-white" value="DigitalVerse">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Email de Contacto</label>
+                                            <input type="email" class="form-input w-full px-4 py-3 rounded-xl text-white" value="contacto@digitalverse.com">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Moneda Principal</label>
+                                            <select class="form-input w-full px-4 py-3 rounded-xl text-white">
+                                                <option value="eur">Euro (€)</option>
+                                                <option value="usd">Dólar ($)</option>
+                                                <option value="gbp">Libra (£)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Zona Horaria</label>
+                                            <select class="form-input w-full px-4 py-3 rounded-xl text-white">
+                                                <option value="Europe/Madrid">Europe/Madrid</option>
+                                                <option value="America/New_York">America/New_York</option>
+                                                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-lg mb-4 text-white">Seguridad</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-300">Autenticación de dos factores</span>
+                                            <input type="checkbox" class="rounded text-purple-500 focus:ring-purple-400" checked>
+                                        </div>
+                                        
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-300">Bloqueo por intentos fallidos</span>
+                                            <input type="checkbox" class="rounded text-purple-500 focus:ring-purple-400" checked>
+                                        </div>
+                                        
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-gray-300">Registro de actividad</span>
+                                            <input type="checkbox" class="rounded text-purple-500 focus:ring-purple-400" checked>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">Límite de intentos de login</label>
+                                            <input type="number" class="form-input w-full px-4 py-3 rounded-xl text-white" value="5" min="3" max="10">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 pt-6 border-t border-white/10">
+                                <div class="flex space-x-3">
+                                    <button class="btn-primary px-6 py-3 rounded-xl text-white">Guardar Cambios</button>
+                                    <button class="btn-secondary px-6 py-3 rounded-xl text-white">Restablecer</button>
+                                    <button class="btn-danger px-6 py-3 rounded-xl text-white">Reiniciar Sistema</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">DV</span>
+                </div>
+                <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                <span class="text-sm text-gray-400 ml-2">Admin</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+                © 2024 DigitalVerse. Todos los derechos reservados.
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Política de Privacidad</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Términos de Uso</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Cookies</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script>
+        // Admin específico JavaScript
+        let adminActual = null;
+        let seccionActual = 'dashboard';
+        let productos = [];
+        let usuarios = [];
+        let pedidos = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarAdmin();
+        });
+        
+        function inicializarAdmin() {
+            // Verificar acceso de administrador
+            adminActual = JSON.parse(localStorage.getItem('usuario'));
+            
+            if (!adminActual || adminActual.email !== 'admin@digitalverse.com') {
+                mostrarNotificacion('Acceso denegado. Se requiere cuenta de administrador.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            // Cargar datos
+            cargarDatosAdmin();
+            
+            // Configurar eventos
+            configurarEventosAdmin();
+            
+            // Mostrar sección inicial
+            mostrarSeccionAdmin('dashboard');
+        }
+        
+        function cargarDatosAdmin() {
+            // Cargar todos los datos necesarios
+            productos = JSON.parse(localStorage.getItem('productos')) || [];
+            usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+            pedidos = JSON.parse(localStorage.getItem('compras')) || [];
+            
+            // Si no hay datos, generar algunos de ejemplo
+            if (productos.length === 0) {
+                cargarProductosEjemplo();
+            }
+            
+            if (usuarios.length === 0) {
+                cargarUsuariosEjemplo();
+            }
+            
+            if (pedidos.length === 0) {
+                cargarPedidosEjemplo();
+            }
+        }
+        
+        function cargarProductosEjemplo() {
+            // Usar los productos existentes del archivo productos.json
+            // Ya están cargados en el array global productos
+        }
+        
+        function cargarUsuariosEjemplo() {
+            const usuariosEjemplo = [
+                {
+                    id: Date.now() + 1,
+                    nombre: 'María',
+                    apellidos: 'García López',
+                    email: 'maria@example.com',
+                    fechaNacimiento: '1990-05-15',
+                    metodoPago: 'paypal',
+                    fechaRegistro: '2024-01-15T10:30:00Z',
+                    tipoPlan: 'premium',
+                    creditos: 25,
+                    estado: 'activo'
+                },
+                {
+                    id: Date.now() + 2,
+                    nombre: 'Carlos',
+                    apellidos: 'Rodríguez Martín',
+                    email: 'carlos@example.com',
+                    fechaNacimiento: '1985-08-22',
+                    metodoPago: 'visa',
+                    fechaRegistro: '2024-02-03T14:20:00Z',
+                    tipoPlan: 'basico',
+                    creditos: 5,
+                    estado: 'activo'
+                },
+                {
+                    id: Date.now() + 3,
+                    nombre: 'Ana',
+                    apellidos: 'Martínez Sánchez',
+                    email: 'ana@example.com',
+                    fechaNacimiento: '1992-11-30',
+                    metodoPago: 'bizum',
+                    fechaRegistro: '2024-03-12T09:15:00Z',
+                    tipoPlan: 'basico',
+                    creditos: 3,
+                    estado: 'activo'
+                }
+            ];
+            
+            usuarios.push(...usuariosEjemplo);
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+        }
+        
+        function cargarPedidosEjemplo() {
+            if (usuarios.length === 0 || productos.length === 0) return;
+            
+            const pedidosEjemplo = [
+                {
+                    id: Date.now() + 1,
+                    usuarioId: usuarios[0].id,
+                    productoId: productos[0].id,
+                    producto: productos[0],
+                    fecha: '2024-11-13T10:30:00Z',
+                    precio: productos[0].precio,
+                    metodoPago: usuarios[0].metodoPago,
+                    estado: 'completado'
+                },
+                {
+                    id: Date.now() + 2,
+                    usuarioId: usuarios[1].id,
+                    productoId: productos[1].id,
+                    producto: productos[1],
+                    fecha: '2024-11-12T15:45:00Z',
+                    precio: productos[1].precio,
+                    metodoPago: usuarios[1].metodoPago,
+                    estado: 'completado'
+                },
+                {
+                    id: Date.now() + 3,
+                    usuarioId: usuarios[2].id,
+                    productoId: productos[2].id,
+                    producto: productos[2],
+                    fecha: '2024-11-11T11:20:00Z',
+                    precio: productos[2].precio,
+                    metodoPago: usuarios[2].metodoPago,
+                    estado: 'completado'
+                }
+            ];
+            
+            pedidos.push(...pedidosEjemplo);
+            localStorage.setItem('compras', JSON.stringify(pedidos));
+        }
+        
+        function configurarEventosAdmin() {
+            // Menú de administrador
+            document.getElementById('admin-menu-btn').addEventListener('click', toggleAdminMenu);
+            
+            // Menú lateral
+            document.querySelectorAll('.admin-menu a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const seccion = e.currentTarget.dataset.section;
+                    mostrarSeccionAdmin(seccion);
+                });
+            });
+            
+            // Cerrar menú al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                const adminMenu = document.getElementById('admin-menu');
+                const adminMenuBtn = document.getElementById('admin-menu-btn');
+                
+                if (!adminMenuBtn.contains(e.target) && !adminMenu.contains(e.target)) {
+                    adminMenu.classList.add('hidden');
+                }
+            });
+        }
+        
+        function toggleAdminMenu() {
+            const menu = document.getElementById('admin-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        function mostrarSeccionAdmin(seccion) {
+            seccionActual = seccion;
+            
+            // Actualizar menú activo
+            document.querySelectorAll('.admin-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${seccion}"]`).classList.add('active');
+            
+            // Mostrar/ocultar secciones
+            document.querySelectorAll('.admin-section').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${seccion}-section`).classList.remove('hidden');
+            
+            // Cargar contenido específico de la sección
+            switch (seccion) {
+                case 'dashboard':
+                    cargarDashboardAdmin();
+                    break;
+                case 'products':
+                    cargarProductosAdmin();
+                    break;
+                case 'users':
+                    cargarUsuariosAdmin();
+                    break;
+                case 'generator':
+                    cargarGeneradorAdmin();
+                    break;
+                case 'analytics':
+                    cargarAnalyticsAdmin();
+                    break;
+            }
+        }
+        
+        function cargarDashboardAdmin() {
+            // Actualizar estadísticas
+            const totalUsuarios = usuarios.length;
+            const totalProductos = productos.length;
+            const totalPedidos = pedidos.length;
+            const totalIngresos = pedidos.reduce((sum, p) => sum + p.precio, 0);
+            
+            document.getElementById('total-users').textContent = totalUsuarios;
+            document.getElementById('total-products').textContent = totalProductos;
+            document.getElementById('total-orders').textContent = totalPedidos;
+            document.getElementById('total-revenue').textContent = `€${totalIngresos.toFixed(2)}`;
+            
+            // Cargar gráficos
+            cargarGraficoVentas();
+            cargarGraficoUsuarios();
+            cargarActividadReciente();
+        }
+        
+        function cargarGraficoVentas() {
+            const chartDom = document.getElementById('sales-chart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderColor: 'rgba(139, 92, 246, 0.3)',
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9CA3AF'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9CA3AF'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    data: [120, 200, 150, 80, 70, 110, 130, 180, 220, 190, 240, 280],
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        color: '#8B5CF6',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#8B5CF6'
+                    },
+                    areaStyle: {
+                        color: 'rgba(139, 92, 246, 0.2)'
+                    }
+                }]
+            };
+            
+            myChart.setOption(option);
+        }
+        
+        function cargarGraficoUsuarios() {
+            const chartDom = document.getElementById('users-chart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderColor: 'rgba(139, 92, 246, 0.3)',
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                series: [{
+                    name: 'Planes de Usuario',
+                    type: 'pie',
+                    radius: '70%',
+                    data: [
+                        { value: 65, name: 'Plan Básico', itemStyle: { color: '#3B82F6' } },
+                        { value: 30, name: 'Plan Premium', itemStyle: { color: '#10B981' } },
+                        { value: 5, name: 'Plan Empresarial', itemStyle: { color: '#8B5CF6' } }
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label: {
+                        color: '#ffffff'
+                    }
+                }]
+            };
+            
+            myChart.setOption(option);
+        }
+        
+        function cargarActividadReciente() {
+            const container = document.getElementById('recent-activity');
+            const actividades = [
+                {
+                    tipo: 'nuevo_usuario',
+                    mensaje: 'Nuevo usuario registrado: María García',
+                    fecha: '2024-11-14T10:30:00Z',
+                    icono: '👤'
+                },
+                {
+                    tipo: 'nueva_venta',
+                    mensaje: 'Nueva venta: Cyber Forest Landscape - €0.99',
+                    fecha: '2024-11-14T09:15:00Z',
+                    icono: '💰'
+                },
+                {
+                    tipo: 'generacion_ia',
+                    mensaje: 'Generación IA completada: 10 nuevas tarjetas',
+                    fecha: '2024-11-14T08:45:00Z',
+                    icono: '🤖'
+                },
+                {
+                    tipo: 'nuevo_producto',
+                    mensaje: 'Nuevo producto añadido: Christmas Collection',
+                    fecha: '2024-11-13T16:20:00Z',
+                    icono: '🎨'
+                }
+            ];
+            
+            container.innerHTML = '';
+            
+            actividades.forEach(actividad => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center space-x-4 p-3 hover:bg-white/5 rounded-lg transition-colors';
+                item.innerHTML = `
+                    <div class="text-2xl">${actividad.icono}</div>
+                    <div class="flex-1">
+                        <p class="text-white">${actividad.mensaje}</p>
+                        <p class="text-gray-400 text-sm">${new Date(actividad.fecha).toLocaleString()}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function cargarProductosAdmin() {
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = '';
+            
+            productos.forEach(producto => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${producto.id}</td>
+                    <td>
+                        <div class="flex items-center space-x-2">
+                            <img src="imagenes/${producto.imagen}" alt="${producto.nombre}" class="w-8 h-8 rounded object-cover" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjMzc0MTUxIi8+Cjx0ZXh0IHg9IjE2IiB5PSIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzY0NzQ4YiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOCI+SW1hZ2VuPC90ZXh0Pgo8L3N2Zz4='">
+                            <span class="font-medium">${producto.nombre}</span>
+                        </div>
+                    </td>
+                    <td>${producto.categoria}</td>
+                    <td>€${producto.precio}</td>
+                    <td><span class="status-badge active">Activo</span></td>
+                    <td>
+                        <div class="flex space-x-2">
+                            <button class="action-btn edit" onclick="editarProducto(${producto.id})">Editar</button>
+                            <button class="action-btn delete" onclick="eliminarProducto(${producto.id})">Eliminar</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function cargarUsuariosAdmin() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+            
+            usuarios.forEach(usuario => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${usuario.id}</td>
+                    <td>${usuario.nombre} ${usuario.apellidos || ''}</td>
+                    <td>${usuario.email}</td>
+                    <td>
+                        <span class="px-2 py-1 rounded text-xs ${usuario.tipoPlan === 'premium' ? 'bg-green-500/20 text-green-400' : usuario.tipoPlan === 'empresarial' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'}">
+                            ${usuario.tipoPlan || 'basico'}
+                        </span>
+                    </td>
+                    <td>${new Date(usuario.fechaRegistro).toLocaleDateString()}</td>
+                    <td><span class="status-badge active">Activo</span></td>
+                    <td>
+                        <div class="flex space-x-2">
+                            <button class="action-btn edit" onclick="editarUsuario(${usuario.id})">Editar</button>
+                            <button class="action-btn delete" onclick="eliminarUsuario(${usuario.id})">Suspender</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function cargarGeneradorAdmin() {
+            // La configuración ya está cargada en el HTML
+            // Aquí podrías agregar lógica adicional si es necesario
+        }
+        
+        function cargarAnalyticsAdmin() {
+            const chartDom = document.getElementById('traffic-chart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderColor: 'rgba(139, 92, 246, 0.3)',
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                series: [{
+                    name: 'Fuentes de Tráfico',
+                    type: 'pie',
+                    radius: '70%',
+                    data: [
+                        { value: 40, name: 'Búsqueda Orgánica', itemStyle: { color: '#10B981' } },
+                        { value: 25, name: 'Redes Sociales', itemStyle: { color: '#3B82F6' } },
+                        { value: 20, name: 'Directo', itemStyle: { color: '#8B5CF6' } },
+                        { value: 10, name: 'Referencias', itemStyle: { color: '#F59E0B' } },
+                        { value: 5, name: 'Email', itemStyle: { color: '#EF4444' } }
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label: {
+                        color: '#ffffff'
+                    }
+                }]
+            };
+            
+            myChart.setOption(option);
+        }
+        
+        function abrirModalProducto() {
+            mostrarNotificacion('Función de agregar producto - Modal no implementado', 'info');
+        }
+        
+        function editarProducto(id) {
+            mostrarNotificacion(`Editar producto ${id} - Función no implementada`, 'info');
+        }
+        
+        function eliminarProducto(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                mostrarNotificacion(`Producto ${id} eliminado exitosamente`, 'success');
+            }
+        }
+        
+        function editarUsuario(id) {
+            mostrarNotificacion(`Editar usuario ${id} - Función no implementada`, 'info');
+        }
+        
+        function eliminarUsuario(id) {
+            if (confirm('¿Estás seguro de que quieres suspender este usuario?')) {
+                mostrarNotificacion(`Usuario ${id} suspendido exitosamente`, 'success');
+            }
+        }
+        
+        function guardarPrompt() {
+            const prompt = document.getElementById('prompt-template').value;
+            localStorage.setItem('prompt-base', prompt);
+            mostrarNotificacion('Prompt guardado correctamente', 'success');
+        }
+        
+        function probarPrompt() {
+            mostrarNotificacion('Generando imagen de prueba...', 'info');
+            
+            // Simular generación
+            setTimeout(() => {
+                mostrarNotificacion('Imagen generada exitosamente', 'success');
+            }, 2000);
+        }
+        
+        function iniciarGeneracion() {
+            const status = document.getElementById('generation-status');
+            const lastGeneration = document.getElementById('last-generation');
+            
+            status.textContent = 'Generando...';
+            status.className = 'text-yellow-400';
+            
+            // Simular proceso de generación
+            setTimeout(() => {
+                status.textContent = 'Completado';
+                status.className = 'text-green-400';
+                lastGeneration.textContent = new Date().toLocaleString();
+                
+                mostrarNotificacion('Generación completada: 10 nuevos productos creados', 'success');
+            }, 3000);
+        }
+        
+        function programarGeneracion() {
+            const nextGeneration = document.getElementById('next-generation');
+            const fecha = new Date();
+            fecha.setDate(fecha.getDate() + 7); // Próxima semana
+            
+            nextGeneration.textContent = fecha.toLocaleString();
+            mostrarNotificacion('Generación programada para la próxima semana', 'success');
+        }
+        
+        function detenerGeneracion() {
+            const status = document.getElementById('generation-status');
+            status.textContent = 'Detenido';
+            status.className = 'text-red-400';
+            
+            mostrarNotificacion('Generación detenida', 'info');
+        }
+        
+        function cerrarSesionAdmin() {
+            localStorage.removeItem('usuario');
+            mostrarNotificacion('Sesión de administrador cerrada', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

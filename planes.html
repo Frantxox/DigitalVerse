@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planes y Suscripciones - DigitalVerse</title>
+    <meta name="description" content="Descubre nuestros planes de suscripción mensual y anual. Obtén acceso ilimitado a nuestro catálogo de arte digital generativo.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de animación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --neon-green: #10B981;
+            --purple-accent: #8B5CF6;
+            --dark-bg: #0F172A;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-accent {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .plan-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(37, 99, 235, 0.2);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .plan-card.featured {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+        }
+        
+        .plan-card.featured::before {
+            content: 'MÁS POPULAR';
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: var(--purple-accent);
+            color: white;
+            padding: 5px 40px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .benefit-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--glass-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stats-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .comparison-table {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comparison-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .price-highlight {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        
+        .savings-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+        
+        .faq-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .faq-item:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .faq-answer {
+            padding: 0 1.5rem 1.5rem;
+            color: #9CA3AF;
+            line-height: 1.6;
+            display: none;
+        }
+        
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+        
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+        
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de Partículas -->
+    <div id="particle-container" class="particle-bg"></div>
+    
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-blue-400 transition-colors font-medium">Inicio</a>
+                    <a href="catalogo.html" class="text-white hover:text-blue-400 transition-colors font-medium">Catálogo</a>
+                    <a href="planes.html" class="text-blue-400 font-medium">Planes</a>
+                    <a href="generador.html" class="text-white hover:text-blue-400 transition-colors font-medium">Generador IA</a>
+                    <a href="login.html" class="btn-primary px-4 py-2 rounded-lg text-white font-medium">Iniciar Sesión</a>
+                    <div class="relative">
+                        <button id="carrito-btn" class="text-white hover:text-blue-400 transition-colors relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+                            </svg>
+                            <span id="carrito-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="reveal">
+                <h1 class="font-display font-bold text-4xl md:text-6xl mb-6 gradient-text">
+                    Elige tu Plan Ideal
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
+                    Obtén acceso ilimitado a nuestro catálogo de arte digital generativo. 
+                    Elige el plan que mejor se adapte a tus necesidades.
+                </p>
+                
+                <!-- Toggle de Facturación -->
+                <div class="flex items-center justify-center space-x-4 mb-12">
+                    <span class="text-gray-300 font-medium">Mensual</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="billing-toggle" class="sr-only peer">
+                        <div class="w-14 h-7 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
+                    <span class="text-gray-300 font-medium">Anual</span>
+                    <span class="savings-badge">Ahorra hasta 47%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Planes de Suscripción -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Plan Básico -->
+                <div class="plan-card rounded-2xl p-8 reveal">
+                    <div class="text-center mb-8">
+                        <div class="benefit-icon">
+                            🌱
+                        </div>
+                        <h3 class="font-accent font-bold text-2xl mb-2 text-white">Plan Básico</h3>
+                        <p class="text-gray-300 mb-6">Perfecto para empezar</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-highlight text-green-400" data-monthly="4.99" data-annual="49.99">€4.99</span>
+                            <span class="text-gray-400">/mes</span>
+                        </div>
+                        
+                        <button class="w-full btn-secondary py-3 rounded-xl font-semibold text-white mb-4">
+                            Comenzar Gratis
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">10 descargas mensuales</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Fondos de escritorio</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Soporte por email</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Acceso a nuevos lanzamientos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Plan Premium -->
+                <div class="plan-card featured rounded-2xl p-8 reveal">
+                    <div class="text-center mb-8">
+                        <div class="benefit-icon">
+                            🚀
+                        </div>
+                        <h3 class="font-accent font-bold text-2xl mb-2 text-white">Plan Premium</h3>
+                        <p class="text-gray-300 mb-6">La opción más popular</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-highlight text-green-400" data-monthly="13.99" data-annual="89.99">€13.99</span>
+                            <span class="text-gray-400">/mes</span>
+                            <div class="savings-badge">Ahorra 47% anual</div>
+                        </div>
+                        
+                        <button class="w-full btn-primary py-3 rounded-xl font-semibold text-white mb-4">
+                            Comenzar Ahora
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Descargas ilimitadas</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Todos los tipos de productos</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Acceso al generador IA</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Soporte prioritario 24/7</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Descuentos exclusivos</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Packs mensuales exclusivos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Plan Empresarial -->
+                <div class="plan-card rounded-2xl p-8 reveal">
+                    <div class="text-center mb-8">
+                        <div class="benefit-icon">
+                            🏢
+                        </div>
+                        <h3 class="font-accent font-bold text-2xl mb-2 text-white">Plan Empresarial</h3>
+                        <p class="text-gray-300 mb-6">Para equipos y empresas</p>
+                        
+                        <div class="mb-6">
+                            <span class="price-highlight text-green-400" data-monthly="39.99" data-annual="399.99">€39.99</span>
+                            <span class="text-gray-400">/mes</span>
+                        </div>
+                        
+                        <button class="w-full btn-secondary py-3 rounded-xl font-semibold text-white mb-4">
+                            Contactar Ventas
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Hasta 10 usuarios</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Licencia comercial completa</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Gestión de equipo centralizada</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Soporte dedicado</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">Facturación personalizada</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300">API de integración</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Comparación de Planes -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display font-bold text-4xl mb-6 gradient-text">Comparación de Planes</h2>
+                <p class="text-xl text-gray-300">Todos los detalles de cada plan en un solo lugar</p>
+            </div>
+            
+            <div class="comparison-table reveal">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left text-white">Características</th>
+                            <th class="text-white">Básico</th>
+                            <th class="text-white">Premium</th>
+                            <th class="text-white">Empresarial</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-300">
+                        <tr>
+                            <td class="text-left font-medium text-white">Descargas mensuales</td>
+                            <td>10</td>
+                            <td>Ilimitadas</td>
+                            <td>Ilimitadas</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left font-medium text-white">Tipos de productos</td>
+                            <td>Fondos de escritorio</td>
+                            <td>Todos</td>
+                            <td>Todos</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left font-medium text-white">Generador IA</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left font-medium text-white">Soporte</td>
+                            <td>Email</td>
+                            <td>24/7 Prioritario</td>
+                            <td>Dedicado</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left font-medium text-white">Licencia comercial</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left font-medium text-white">Gestión de equipo</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left font-medium text-white">API de integración</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Estadísticas de Uso -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display font-bold text-4xl mb-6 gradient-text">Estadísticas de Uso</h2>
+                <p class="text-xl text-gray-300">Mira cómo nuestros usuarios aprovechan sus suscripciones</p>
+            </div>
+            
+            <div class="stats-container reveal">
+                <div id="usage-chart" style="width: 100%; height: 400px;"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8 mt-12">
+                <div class="text-center reveal">
+                    <div class="text-4xl font-bold text-green-400 mb-2">95%</div>
+                    <div class="text-gray-300">Satisfacción del cliente</div>
+                </div>
+                <div class="text-center reveal">
+                    <div class="text-4xl font-bold text-blue-400 mb-2">2.3M</div>
+                    <div class="text-gray-300">Descargas mensuales</div>
+                </div>
+                <div class="text-center reveal">
+                    <div class="text-4xl font-bold text-purple-400 mb-2">50K+</div>
+                    <div class="text-gray-300">Usuarios activos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Preguntas Frecuentes -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display font-bold text-4xl mb-6 gradient-text">Preguntas Frecuentes</h2>
+                <p class="text-xl text-gray-300">Todo lo que necesitas saber sobre nuestros planes</p>
+            </div>
+            
+            <div class="space-y-4 reveal">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>¿Puedo cambiar de plan en cualquier momento?</span>
+                        <svg class="w-5 h-5 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        Sí, puedes cambiar de plan en cualquier momento. El cambio se efectuará al final del ciclo de facturación actual y se aplicará la tarifa proporcional.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>¿Hay periodo de prueba gratuito?</span>
+                        <svg class="w-5 h-5 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        Sí, ofrecemos una prueba gratuita de 7 días para todos nuestros planes. No se requiere tarjeta de crédito para comenzar.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>¿Qué métodos de pago aceptan?</span>
+                        <svg class="w-5 h-5 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        Aceptamos tarjetas de crédito/débito (VISA, Mastercard), PayPal, Bizum y transferencias bancarias para planes empresariales.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>¿Puedo cancelar mi suscripción?</span>
+                        <svg class="w-5 h-5 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        Sí, puedes cancelar tu suscripción en cualquier momento desde tu panel de usuario. Tendrás acceso hasta el final del periodo pagado.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>¿Los productos descargados son míos para siempre?</span>
+                        <svg class="w-5 h-5 faq-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        Sí, una vez que descargas un producto, es tuyo para siempre, incluso si cancelas tu suscripción. Solo asegúrate de respetar los términos de la licencia.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="glass-effect rounded-3xl p-12 reveal">
+                <h2 class="font-display font-bold text-4xl md:text-5xl mb-6 gradient-text">
+                    ¿Listo para comenzar?
+                </h2>
+                <p class="text-xl text-gray-300 mb-8">
+                    Únete a miles de usuarios que ya disfrutan de nuestro arte digital exclusivo.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="start-premium" class="btn-primary px-8 py-4 rounded-xl text-lg font-semibold text-white">
+                        Comenzar Prueba Gratuita
+                    </button>
+                    <a href="catalogo.html" class="btn-secondary px-8 py-4 rounded-xl text-lg font-semibold text-white">
+                        Explorar Catálogo
+                    </a>
+                </div>
+                <p class="text-sm text-gray-400 mt-4">Sin tarjeta de crédito • Cancela en cualquier momento</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">DV</span>
+                </div>
+                <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+                © 2024 DigitalVerse. Todos los derechos reservados.
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Política de Privacidad</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Términos de Uso</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Cookies</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script>
+        // Planes específico JavaScript
+        let isAnnual = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarPlanes();
+        });
+        
+        function inicializarPlanes() {
+            // Configurar eventos
+            document.getElementById('billing-toggle').addEventListener('change', toggleBilling);
+            
+            // Botones de acción
+            document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+                btn.addEventListener('click', manejarCompra);
+            });
+            
+            // Inicializar gráfico
+            inicializarGrafico();
+            
+            // Inicializar animaciones
+            inicializarAnimaciones();
+        }
+        
+        function toggleBilling() {
+            isAnnual = document.getElementById('billing-toggle').checked;
+            actualizarPrecios();
+        }
+        
+        function actualizarPrecios() {
+            const priceElements = document.querySelectorAll('.price-highlight');
+            
+            priceElements.forEach(element => {
+                const monthlyPrice = parseFloat(element.getAttribute('data-monthly'));
+                const annualPrice = parseFloat(element.getAttribute('data-annual'));
+                
+                if (isAnnual) {
+                    element.textContent = `€${(annualPrice / 12).toFixed(2)}`;
+                } else {
+                    element.textContent = `€${monthlyPrice.toFixed(2)}`;
+                }
+            });
+            
+            // Actualizar badge de ahorro
+            const savingsBadge = document.querySelector('.savings-badge');
+            if (savingsBadge) {
+                savingsBadge.textContent = isAnnual ? 'Ahorra hasta 47% anual' : 'Ahorra hasta 47% anual';
+            }
+        }
+        
+        function manejarCompra(event) {
+            const button = event.target;
+            const buttonText = button.textContent.trim();
+            
+            // Animación de carga
+            button.style.opacity = '0.7';
+            button.textContent = 'Procesando...';
+            
+            setTimeout(() => {
+                button.style.opacity = '1';
+                
+                if (buttonText.includes('Comenzar') || buttonText.includes('Start')) {
+                    // Redirigir a registro
+                    window.location.href = 'login.html?plan=premium';
+                } else if (buttonText.includes('Contactar') || buttonText.includes('Contact')) {
+                    // Mostrar formulario de contacto
+                    mostrarFormularioContacto();
+                } else {
+                    // Acción por defecto
+                    mostrarNotificacion('Función no disponible temporalmente', 'info');
+                }
+                
+                button.textContent = buttonText;
+            }, 1500);
+        }
+        
+        function mostrarFormularioContacto() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="this.parentElement.remove()"></div>
+                <div class="glass-effect rounded-2xl p-8 max-w-md w-full relative">
+                    <h3 class="font-accent font-bold text-2xl mb-6 text-center text-white">Contactar Ventas</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <input type="text" placeholder="Nombre de la empresa" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <input type="email" placeholder="Email corporativo" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <input type="number" placeholder="Número de empleados" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-purple-400">
+                        </div>
+                        <div>
+                            <textarea placeholder="Mensaje (opcional)" rows="3" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 resize-none"></textarea>
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-3 rounded-xl font-semibold text-white">
+                            Enviar Solicitud
+                        </button>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Configurar envío del formulario
+            modal.querySelector('form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                mostrarNotificacion('Solicitud enviada correctamente. Nos pondremos en contacto pronto.', 'success');
+                modal.remove();
+            });
+        }
+        
+        function inicializarGrafico() {
+            const chartDom = document.getElementById('usage-chart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                backgroundColor: 'transparent',
+                title: {
+                    text: 'Uso de Suscripciones por Mes',
+                    textStyle: {
+                        color: '#ffffff',
+                        fontSize: 18
+                    },
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderColor: 'rgba(139, 92, 246, 0.3)',
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                legend: {
+                    data: ['Básico', 'Premium', 'Empresarial'],
+                    textStyle: {
+                        color: '#ffffff'
+                    },
+                    top: 40
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9CA3AF'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.3)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9CA3AF'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Básico',
+                        type: 'line',
+                        stack: 'Total',
+                        smooth: true,
+                        data: [1200, 1350, 1100, 1400, 1600, 1800, 1650, 1900, 2100, 2000, 2200, 2400],
+                        lineStyle: {
+                            color: '#10B981'
+                        },
+                        areaStyle: {
+                            color: 'rgba(16, 185, 129, 0.2)'
+                        }
+                    },
+                    {
+                        name: 'Premium',
+                        type: 'line',
+                        stack: 'Total',
+                        smooth: true,
+                        data: [800, 950, 1100, 1250, 1400, 1600, 1750, 1900, 2100, 2300, 2500, 2700],
+                        lineStyle: {
+                            color: '#8B5CF6'
+                        },
+                        areaStyle: {
+                            color: 'rgba(139, 92, 246, 0.2)'
+                        }
+                    },
+                    {
+                        name: 'Empresarial',
+                        type: 'line',
+                        stack: 'Total',
+                        smooth: true,
+                        data: [200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                        lineStyle: {
+                            color: '#2563EB'
+                        },
+                        areaStyle: {
+                            color: 'rgba(37, 99, 235, 0.2)'
+                        }
+                    }
+                ]
+            };
+            
+            myChart.setOption(option);
+            
+            // Hacer el gráfico responsive
+            window.addEventListener('resize', () => {
+                myChart.resize();
+            });
+        }
+        
+        function inicializarAnimaciones() {
+            // Animar números de estadísticas
+            const stats = document.querySelectorAll('.text-4xl');
+            
+            const observerOptions = {
+                threshold: 0.5
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        const finalValue = target.textContent;
+                        
+                        // Extraer número del texto
+                        const numMatch = finalValue.match(/[\d.]+/);
+                        if (numMatch) {
+                            const finalNum = parseFloat(numMatch[0]);
+                            animateNumber(target, finalNum, finalValue);
+                        }
+                    }
+                });
+            }, observerOptions);
+            
+            stats.forEach(stat => observer.observe(stat));
+        }
+        
+        function animateNumber(element, finalValue, originalText) {
+            let currentValue = 0;
+            const increment = finalValue / 50;
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
+                
+                if (currentValue >= finalValue) {
+                    currentValue = finalValue;
+                    clearInterval(timer);
+                }
+                
+                // Formatear número
+                let displayValue = currentValue;
+                if (finalValue >= 1000) {
+                    displayValue = (currentValue / 1000).toFixed(1) + 'K';
+                } else if (finalValue >= 1000000) {
+                    displayValue = (currentValue / 1000000).toFixed(1) + 'M';
+                } else {
+                    displayValue = Math.floor(currentValue);
+                }
+                
+                element.textContent = originalText.replace(/[\d.]+[KMB]?/, displayValue);
+            }, 30);
+        }
+        
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // Cerrar todos los demás
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Abrir el actual si no estaba activo
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

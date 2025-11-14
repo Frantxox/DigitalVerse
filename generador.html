@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador IA de Tarjetas - DigitalVerse</title>
+    <meta name="description" content="Crea tarjetas personalizadas con nuestra IA avanzada. Diseños únicos para cada ocasión especial.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de animación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --neon-green: #10B981;
+            --purple-accent: #8B5CF6;
+            --dark-bg: #0F172A;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-accent {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .generator-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+        }
+        
+        .form-input {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+        
+        .template-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .template-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .template-card.selected {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .preview-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--purple-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .generated-card {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .style-option {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .style-option:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .style-option.selected {
+            border-color: rgba(139, 92, 246, 0.6);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.2);
+        }
+        
+        .recent-generation {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .recent-generation:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .generations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .generation-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .generation-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .generation-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .generation-info {
+            padding: 1rem;
+        }
+        
+        .generation-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .action-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .credits-display {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .premium-badge {
+            background: linear-gradient(135deg, var(--purple-accent), #7C3AED);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de Partículas -->
+    <div id="particle-container" class="particle-bg"></div>
+    
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-blue-400 transition-colors font-medium">Inicio</a>
+                    <a href="catalogo.html" class="text-white hover:text-blue-400 transition-colors font-medium">Catálogo</a>
+                    <a href="planes.html" class="text-white hover:text-blue-400 transition-colors font-medium">Planes</a>
+                    <a href="generador.html" class="text-blue-400 font-medium">Generador IA</a>
+                    <a href="login.html" class="btn-primary px-4 py-2 rounded-lg text-white font-medium">Iniciar Sesión</a>
+                    <div class="relative">
+                        <button id="carrito-btn" class="text-white hover:text-blue-400 transition-colors relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+                            </svg>
+                            <span id="carrito-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Header del Generador -->
+    <section class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="reveal">
+                <h1 class="font-display font-bold text-4xl md:text-6xl mb-6 gradient-text">
+                    Generador IA de Tarjetas
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
+                    Crea tarjetas personalizadas únicas con nuestra inteligencia artificial avanzada. 
+                    Perfectas para cualquier ocasión especial.
+                </p>
+                
+                <!-- Estado del Usuario -->
+                <div class="flex items-center justify-center space-x-4 mb-8">
+                    <div class="credits-display">
+                        <span id="user-credits">5</span> Créditos Disponibles
+                    </div>
+                    <span class="premium-badge">Premium</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Generador Principal -->
+    <section class="pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Panel de Control -->
+                <div class="lg:col-span-1">
+                    <div class="generator-container reveal">
+                        <h2 class="font-accent font-bold text-2xl mb-6 text-white">Configuración</h2>
+                        
+                        <!-- Tipo de Tarjeta -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-300 mb-3">Tipo de Tarjeta</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="style-option selected" data-type="felicitacion">
+                                    <div class="text-2xl mb-1">🎉</div>
+                                    <div class="text-sm">Felicitación</div>
+                                </div>
+                                <div class="style-option" data-type="cumpleanos">
+                                    <div class="text-2xl mb-1">🎂</div>
+                                    <div class="text-sm">Cumpleaños</div>
+                                </div>
+                                <div class="style-option" data-type="navidad">
+                                    <div class="text-2xl mb-1">🎄</div>
+                                    <div class="text-sm">Navidad</div>
+                                </div>
+                                <div class="style-option" data-type="sanvalentin">
+                                    <div class="text-2xl mb-1">💕</div>
+                                    <div class="text-sm">San Valentín</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Estilo Artístico -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-300 mb-3">Estilo Artístico</label>
+                            <select id="art-style" class="form-input w-full px-4 py-3 rounded-xl text-white">
+                                <option value="realista">Realista</option>
+                                <option value="cartoon">Cartoon</option>
+                                <option value="minimalista">Minimalista</option>
+                                <option value="abstracto">Abstracto</option>
+                                <option value="vintage">Vintage</option>
+                                <option value="futurista">Futurista</option>
+                                <option value="acuarela">Acuarela</option>
+                                <option value="digital">Arte Digital</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Colores -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-300 mb-3">Paleta de Colores</label>
+                            <div class="color-palette">
+                                <div class="color-option selected" style="background: #FF6B6B" data-color="#FF6B6B"></div>
+                                <div class="color-option" style="background: #4ECDC4" data-color="#4ECDC4"></div>
+                                <div class="color-option" style="background: #45B7D1" data-color="#45B7D1"></div>
+                                <div class="color-option" style="background: #96CEB4" data-color="#96CEB4"></div>
+                                <div class="color-option" style="background: #FFEAA7" data-color="#FFEAA7"></div>
+                                <div class="color-option" style="background: #DDA0DD" data-color="#DDA0DD"></div>
+                                <div class="color-option" style="background: #98D8C8" data-color="#98D8C8"></div>
+                                <div class="color-option" style="background: #F7DC6F" data-color="#F7DC6F"></div>
+                                <div class="color-option" style="background: #BB8FCE" data-color="#BB8FCE"></div>
+                                <div class="color-option" style="background: #85C1E9" data-color="#85C1E9"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Texto Personalizado -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-300 mb-3">Texto Personalizado</label>
+                            <textarea id="custom-text" 
+                                      placeholder="Escribe tu mensaje personalizado..." 
+                                      class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400 resize-none"
+                                      rows="3"></textarea>
+                        </div>
+                        
+                        <!-- Opciones Avanzadas -->
+                        <div class="mb-6">
+                            <button id="advanced-toggle" class="w-full text-left text-sm font-medium text-gray-300 hover:text-white transition-colors flex items-center justify-between">
+                                <span>Opciones Avanzadas</span>
+                                <svg class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <div id="advanced-options" class="hidden mt-4 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Nivel de Detalle</label>
+                                    <input type="range" id="detail-level" min="1" max="10" value="5" class="w-full">
+                                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                        <span>Simple</span>
+                                        <span>Complejo</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Estado de Ánimo</label>
+                                    <select id="mood" class="form-input w-full px-3 py-2 rounded-lg text-white">
+                                        <option value="alegre">Alegre</option>
+                                        <option value="elegante">Elegante</option>
+                                        <option value="divertido">Divertido</option>
+                                        <option value="romantico">Romántico</option>
+                                        <option value="formal">Formal</option>
+                                        <option value="casual">Casual</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botón de Generación -->
+                        <button id="generate-btn" class="w-full btn-primary py-4 rounded-xl font-semibold text-white text-lg">
+                            Generar Tarjeta (1 Crédito)
+                        </button>
+                        
+                        <!-- Información de Costo -->
+                        <div class="mt-4 text-center text-sm text-gray-400">
+                            Cada generación consume 1 crédito
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vista Previa -->
+                <div class="lg:col-span-2">
+                    <div class="generator-container reveal">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="font-accent font-bold text-2xl text-white">Vista Previa</h2>
+                            <div class="flex space-x-2">
+                                <button id="refresh-preview" class="btn-secondary px-4 py-2 rounded-lg text-white text-sm">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    Actualizar
+                                </button>
+                                <button id="download-btn" class="btn-primary px-4 py-2 rounded-lg text-white text-sm" disabled>
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    Descargar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-container" id="preview-area">
+                            <div class="text-center text-gray-400">
+                                <div class="text-6xl mb-4">🎨</div>
+                                <h3 class="text-xl font-semibold mb-2">Tu tarjeta aparecerá aquí</h3>
+                                <p>Configura las opciones y presiona "Generar Tarjeta"</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Información de la Generación -->
+                        <div class="mt-6 p-4 bg-white/5 rounded-xl">
+                            <div class="flex justify-between items-center text-sm text-gray-300">
+                                <span>Estado: <span id="generation-status">Esperando</span></span>
+                                <span>Tiempo estimado: <span id="generation-time">~30 segundos</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Generaciones Recientes -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display font-bold text-4xl mb-6 gradient-text">Tus Generaciones Recientes</h2>
+                <p class="text-xl text-gray-300">Todas las tarjetas que has creado</p>
+            </div>
+            
+            <div class="generations-grid reveal" id="generations-grid">
+                <!-- Las generaciones se cargarán dinámicamente -->
+            </div>
+            
+            <!-- Mensaje cuando no hay generaciones -->
+            <div id="no-generations" class="text-center py-20">
+                <div class="text-6xl mb-4">🎨</div>
+                <h3 class="text-2xl font-bold mb-2 text-gray-300">Aún no has creado tarjetas</h3>
+                <p class="text-gray-400">Comienza creando tu primera tarjeta personalizada</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Plantillas Sugeridas -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display font-bold text-4xl mb-6 gradient-text">Plantillas Populares</h2>
+                <p class="text-xl text-gray-300">Comienza con una de nuestras plantillas prediseñadas</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 reveal">
+                <div class="template-card" data-template="navidad-clasica">
+                    <div class="aspect-video mb-3 bg-red-100 rounded-lg flex items-center justify-center">
+                        <span class="text-4xl">🎄</span>
+                    </div>
+                    <h3 class="font-semibold text-white mb-1">Navidad Clásica</h3>
+                    <p class="text-sm text-gray-400">Diseño tradicional navideño</p>
+                </div>
+                
+                <div class="template-card" data-template="cumpleanos-moderno">
+                    <div class="aspect-video mb-3 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span class="text-4xl">🎂</span>
+                    </div>
+                    <h3 class="font-semibold text-white mb-1">Cumpleaños Moderno</h3>
+                    <p class="text-sm text-gray-400">Estilo contemporáneo y elegante</p>
+                </div>
+                
+                <div class="template-card" data-template="sanvalentin-romantico">
+                    <div class="aspect-video mb-3 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <span class="text-4xl">💕</span>
+                    </div>
+                    <h3 class="font-semibold text-white mb-1">San Valentín Romántico</h3>
+                    <p class="text-sm text-gray-400">Diseño romántico y delicado</p>
+                </div>
+                
+                <div class="template-card" data-template="generica-elegante">
+                    <div class="aspect-video mb-3 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <span class="text-4xl">✨</span>
+                    </div>
+                    <h3 class="font-semibold text-white mb-1">Genérica Elegante</h3>
+                    <p class="text-sm text-gray-400">Versátil y sofisticada</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Modal de Ampliación -->
+    <div id="enlarge-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="cerrarAmpliacion()"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="glass-effect rounded-2xl p-8 max-w-4xl w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-accent font-bold text-2xl text-white">Tarjeta Generada</h3>
+                    <button onclick="cerrarAmpliacion()" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <img id="enlarged-image" src="" alt="Tarjeta ampliada" class="w-full max-h-96 object-contain rounded-xl mb-6">
+                    <div class="flex justify-center space-x-4">
+                        <button id="modal-download" class="btn-primary px-6 py-3 rounded-xl font-semibold text-white">
+                            Descargar
+                        </button>
+                        <button id="modal-share" class="btn-secondary px-6 py-3 rounded-xl font-semibold text-white">
+                            Compartir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">DV</span>
+                </div>
+                <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+                © 2024 DigitalVerse. Todos los derechos reservados.
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Política de Privacidad</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Términos de Uso</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Cookies</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script>
+        // Generador específico JavaScript
+        let configuracionActual = {
+            tipo: 'felicitacion',
+            estilo: 'realista',
+            color: '#FF6B6B',
+            texto: '',
+            detalle: 5,
+            estado: 'alegre'
+        };
+        
+        let generacionesRecientes = [];
+        let creditosUsuario = 5;
+        let estaGenerando = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarGenerador();
+        });
+        
+        function inicializarGenerador() {
+            // Cargar generaciones anteriores
+            cargarGeneracionesAnteriores();
+            
+            // Configurar eventos
+            configurarEventosGenerador();
+            
+            // Actualizar UI
+            actualizarCreditos();
+            renderizarGeneracionesRecientes();
+        }
+        
+        function configurarEventosGenerador() {
+            // Tipo de tarjeta
+            document.querySelectorAll('.style-option[data-type]').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    document.querySelectorAll('.style-option[data-type]').forEach(opt => opt.classList.remove('selected'));
+                    e.currentTarget.classList.add('selected');
+                    configuracionActual.tipo = e.currentTarget.dataset.type;
+                    actualizarVistaPrevia();
+                });
+            });
+            
+            // Estilo artístico
+            document.getElementById('art-style').addEventListener('change', (e) => {
+                configuracionActual.estilo = e.target.value;
+                actualizarVistaPrevia();
+            });
+            
+            // Colores
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                    e.currentTarget.classList.add('selected');
+                    configuracionActual.color = e.currentTarget.dataset.color;
+                    actualizarVistaPrevia();
+                });
+            });
+            
+            // Texto personalizado
+            document.getElementById('custom-text').addEventListener('input', (e) => {
+                configuracionActual.texto = e.target.value;
+                actualizarVistaPrevia();
+            });
+            
+            // Opciones avanzadas
+            document.getElementById('advanced-toggle').addEventListener('click', toggleOpcionesAvanzadas);
+            
+            // Nivel de detalle
+            document.getElementById('detail-level').addEventListener('input', (e) => {
+                configuracionActual.detalle = parseInt(e.target.value);
+                actualizarVistaPrevia();
+            });
+            
+            // Estado de ánimo
+            document.getElementById('mood').addEventListener('change', (e) => {
+                configuracionActual.estado = e.target.value;
+                actualizarVistaPrevia();
+            });
+            
+            // Botón de generación
+            document.getElementById('generate-btn').addEventListener('click', generarTarjeta);
+            
+            // Botones de acción
+            document.getElementById('refresh-preview').addEventListener('click', actualizarVistaPrevia);
+            document.getElementById('download-btn').addEventListener('click', descargarTarjeta);
+            
+            // Plantillas
+            document.querySelectorAll('.template-card').forEach(template => {
+                template.addEventListener('click', (e) => {
+                    aplicarPlantilla(e.currentTarget.dataset.template);
+                });
+            });
+            
+            // Modal
+            document.getElementById('modal-download').addEventListener('click', descargarTarjetaModal);
+            document.getElementById('modal-share').addEventListener('click', compartirTarjeta);
+        }
+        
+        function toggleOpcionesAvanzadas() {
+            const toggle = document.getElementById('advanced-toggle');
+            const options = document.getElementById('advanced-options');
+            const icon = toggle.querySelector('svg');
+            
+            if (options.classList.contains('hidden')) {
+                options.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                options.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        function actualizarVistaPrevia() {
+            // Esta función actualizaría la vista previa en tiempo real
+            // Por simplicidad, solo mostraremos un mensaje
+            const previewArea = document.getElementById('preview-area');
+            const previewContent = previewArea.querySelector('.text-center');
+            
+            if (previewContent) {
+                previewContent.innerHTML = `
+                    <div class="text-6xl mb-4">✨</div>
+                    <h3 class="text-xl font-semibold mb-2 text-white">Vista previa actualizada</h3>
+                    <p class="text-gray-400">Configuración: ${configuracionActual.tipo} - ${configuracionActual.estilo}</p>
+                `;
+            }
+        }
+        
+        async function generarTarjeta() {
+            if (estaGenerando) return;
+            
+            if (creditosUsuario <= 0) {
+                mostrarNotificacion('No tienes suficientes créditos. Compra más créditos o actualiza a Premium.', 'error');
+                return;
+            }
+            
+            estaGenerando = true;
+            
+            // Actualizar UI
+            const generateBtn = document.getElementById('generate-btn');
+            const originalText = generateBtn.textContent;
+            generateBtn.textContent = 'Generando...';
+            generateBtn.disabled = true;
+            
+            // Mostrar estado de generación
+            document.getElementById('generation-status').textContent = 'Generando...';
+            document.getElementById('generation-time').textContent = 'Estimado: 30 segundos';
+            
+            // Mostrar loading en preview
+            const previewArea = document.getElementById('preview-area');
+            previewArea.innerHTML = `
+                <div class="text-center">
+                    <div class="loading-spinner mx-auto mb-4"></div>
+                    <h3 class="text-xl font-semibold mb-2 text-white">Generando tu tarjeta...</h3>
+                    <p class="text-gray-400">La IA está creando tu diseño único</p>
+                </div>
+            `;
+            
+            try {
+                // Simular generación de tarjeta
+                await simularGeneracionTarjeta();
+                
+                // Crear tarjeta generada
+                const tarjetaGenerada = {
+                    id: Date.now(),
+                    configuracion: { ...configuracionActual },
+                    imagen: generarImagenTarjeta(),
+                    fecha: new Date().toISOString(),
+                    nombre: `Tarjeta ${configuracionActual.tipo} - ${new Date().toLocaleDateString()}`
+                };
+                
+                // Añadir a generaciones recientes
+                generacionesRecientes.unshift(tarjetaGenerada);
+                
+                // Limitar a las 10 más recientes
+                if (generacionesRecientes.length > 10) {
+                    generacionesRecientes = generacionesRecientes.slice(0, 10);
+                }
+                
+                // Guardar en localStorage
+                localStorage.setItem('generacionesRecientes', JSON.stringify(generacionesRecientes));
+                
+                // Actualizar UI
+                creditosUsuario--;
+                actualizarCreditos();
+                renderizarGeneracionesRecientes();
+                
+                // Mostrar tarjeta generada
+                mostrarTarjetaGenerada(tarjetaGenerada);
+                
+                // Habilitar descarga
+                document.getElementById('download-btn').disabled = false;
+                
+                mostrarNotificacion('¡Tarjeta generada exitosamente!', 'success');
+                
+            } catch (error) {
+                console.error('Error al generar tarjeta:', error);
+                mostrarNotificacion('Error al generar la tarjeta. Intenta nuevamente.', 'error');
+                
+                // Restaurar preview
+                previewArea.innerHTML = `
+                    <div class="text-center text-gray-400">
+                        <div class="text-6xl mb-4">🎨</div>
+                        <h3 class="text-xl font-semibold mb-2">Tu tarjeta aparecerá aquí</h3>
+                        <p>Configura las opciones y presiona "Generar Tarjeta"</p>
+                    </div>
+                `;
+            } finally {
+                estaGenerando = false;
+                generateBtn.textContent = originalText;
+                generateBtn.disabled = false;
+                document.getElementById('generation-status').textContent = 'Completado';
+                document.getElementById('generation-time').textContent = '~30 segundos';
+            }
+        }
+        
+        function simularGeneracionTarjeta() {
+            return new Promise((resolve) => {
+                setTimeout(resolve, 3000 + Math.random() * 2000); // 3-5 segundos
+            });
+        }
+        
+        function generarImagenTarjeta() {
+            // Generar una imagen placeholder basada en la configuración
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Fondo con el color seleccionado
+            ctx.fillStyle = configuracionActual.color;
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Añadir gradiente
+            const gradient = ctx.createLinearGradient(0, 0, 800, 600);
+            gradient.addColorStop(0, configuracionActual.color + '40');
+            gradient.addColorStop(1, configuracionActual.color + '80');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Texto
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            
+            const texto = configuracionActual.texto || `¡Feliz ${configuracionActual.tipo}!`;
+            ctx.fillText(texto, 400, 300);
+            
+            // Emoji decorativo
+            ctx.font = '72px Arial';
+            const emojis = {
+                'felicitacion': '🎉',
+                'cumpleanos': '🎂',
+                'navidad': '🎄',
+                'sanvalentin': '💕'
+            };
+            ctx.fillText(emojis[configuracionActual.tipo] || '✨', 400, 200);
+            
+            return canvas.toDataURL();
+        }
+        
+        function mostrarTarjetaGenerada(tarjeta) {
+            const previewArea = document.getElementById('preview-area');
+            previewArea.innerHTML = `
+                <img src="${tarjeta.imagen}" 
+                     alt="${tarjeta.nombre}" 
+                     class="generated-card cursor-pointer"
+                     onclick="ampliarTarjeta('${tarjeta.imagen}', '${tarjeta.nombre}')">
+            `;
+        }
+        
+        function ampliarTarjeta(imagenSrc, nombre) {
+            const modal = document.getElementById('enlarge-modal');
+            const imagen = document.getElementById('enlarged-image');
+            
+            imagen.src = imagenSrc;
+            imagen.alt = nombre;
+            modal.classList.remove('hidden');
+            
+            // Animar entrada
+            anime({
+                targets: modal.querySelector('.glass-effect'),
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuart'
+            });
+        }
+        
+        function cerrarAmpliacion() {
+            const modal = document.getElementById('enlarge-modal');
+            
+            anime({
+                targets: modal.querySelector('.glass-effect'),
+                scale: [1, 0.8],
+                opacity: [1, 0],
+                duration: 200,
+                easing: 'easeInQuart',
+                complete: () => {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+        
+        function descargarTarjeta() {
+            const imagen = document.querySelector('.generated-card');
+            if (imagen) {
+                const link = document.createElement('a');
+                link.href = imagen.src;
+                link.download = `tarjeta-digitalverse-${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                mostrarNotificacion('Tarjeta descargada correctamente', 'success');
+            }
+        }
+        
+        function descargarTarjetaModal() {
+            const imagen = document.getElementById('enlarged-image');
+            if (imagen) {
+                const link = document.createElement('a');
+                link.href = imagen.src;
+                link.download = `tarjeta-digitalverse-${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                mostrarNotificacion('Tarjeta descargada correctamente', 'success');
+            }
+        }
+        
+        function compartirTarjeta() {
+            const imagen = document.getElementById('enlarged-image');
+            if (imagen && navigator.share) {
+                navigator.share({
+                    title: 'Mi tarjeta personalizada - DigitalVerse',
+                    text: 'Mira esta tarjeta que creé con la IA de DigitalVerse',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copiar URL
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    mostrarNotificacion('Enlace copiado al portapapeles', 'success');
+                });
+            }
+        }
+        
+        function cargarGeneracionesAnteriores() {
+            const guardadas = localStorage.getItem('generacionesRecientes');
+            if (guardadas) {
+                generacionesRecientes = JSON.parse(guardadas);
+            }
+        }
+        
+        function renderizarGeneracionesRecientes() {
+            const grid = document.getElementById('generations-grid');
+            const noGenerations = document.getElementById('no-generations');
+            
+            if (generacionesRecientes.length === 0) {
+                grid.classList.add('hidden');
+                noGenerations.classList.remove('hidden');
+                return;
+            }
+            
+            grid.classList.remove('hidden');
+            noGenerations.classList.add('hidden');
+            grid.innerHTML = '';
+            
+            generacionesRecientes.forEach((tarjeta, index) => {
+                const item = document.createElement('div');
+                item.className = 'generation-item';
+                item.innerHTML = `
+                    <img src="${tarjeta.imagen}" alt="${tarjeta.nombre}" onclick="ampliarTarjeta('${tarjeta.imagen}', '${tarjeta.nombre}')">
+                    <div class="generation-info">
+                        <h3 class="font-semibold text-white text-sm mb-1">${tarjeta.nombre}</h3>
+                        <p class="text-xs text-gray-400 mb-2">${new Date(tarjeta.fecha).toLocaleDateString()}</p>
+                        <div class="generation-actions">
+                            <button class="action-btn" onclick="ampliarTarjeta('${tarjeta.imagen}', '${tarjeta.nombre}')">Ver</button>
+                            <button class="action-btn" onclick="descargarTarjetaDirecta('${tarjeta.imagen}', '${tarjeta.nombre}')">Descargar</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Animar entrada con delay
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    anime({
+                        targets: item,
+                        opacity: [0, 1],
+                        translateY: [20, 0],
+                        duration: 500,
+                        easing: 'easeOutQuart'
+                    });
+                }, index * 100);
+                
+                grid.appendChild(item);
+            });
+        }
+        
+        function descargarTarjetaDirecta(imagenSrc, nombre) {
+            const link = document.createElement('a');
+            link.href = imagenSrc;
+            link.download = `tarjeta-${nombre.replace(/\s+/g, '_')}-${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            mostrarNotificacion('Tarjeta descargada correctamente', 'success');
+        }
+        
+        function actualizarCreditos() {
+            document.getElementById('user-credits').textContent = creditosUsuario;
+            
+            // Actualizar texto del botón
+            const generateBtn = document.getElementById('generate-btn');
+            generateBtn.textContent = creditosUsuario > 0 ? 'Generar Tarjeta (1 Crédito)' : 'Comprar Créditos';
+        }
+        
+        function aplicarPlantilla(templateId) {
+            const plantillas = {
+                'navidad-clasica': {
+                    tipo: 'navidad',
+                    estilo: 'vintage',
+                    color: '#DC143C',
+                    texto: '¡Feliz Navidad y Próspero Año Nuevo!',
+                    estado: 'alegre'
+                },
+                'cumpleanos-moderno': {
+                    tipo: 'cumpleanos',
+                    estilo: 'minimalista',
+                    color: '#4ECDC4',
+                    texto: '¡Feliz Cumpleaños! Que todos tus deseos se hagan realidad.',
+                    estado: 'divertido'
+                },
+                'sanvalentin-romantico': {
+                    tipo: 'sanvalentin',
+                    estilo: 'realista',
+                    color: '#FF69B4',
+                    texto: 'Feliz Día de San Valentín. Eres mi persona favorita.',
+                    estado: 'romantico'
+                },
+                'generica-elegante': {
+                    tipo: 'felicitacion',
+                    estilo: 'elegante',
+                    color: '#8B5CF6',
+                    texto: 'Mis mejores deseos para ti en este día especial.',
+                    estado: 'elegante'
+                }
+            };
+            
+            const plantilla = plantillas[templateId];
+            if (plantilla) {
+                // Aplicar configuración
+                configuracionActual = { ...configuracionActual, ...plantilla };
+                
+                // Actualizar UI
+                actualizarUIConPlantilla(plantilla);
+                actualizarVistaPrevia();
+                
+                mostrarNotificacion('Plantilla aplicada correctamente', 'success');
+            }
+        }
+        
+        function actualizarUIConPlantilla(plantilla) {
+            // Actualizar tipo de tarjeta
+            document.querySelectorAll('.style-option[data-type]').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.type === plantilla.tipo) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // Actualizar estilo
+            document.getElementById('art-style').value = plantilla.estilo;
+            
+            // Actualizar color
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.color.toLowerCase() === plantilla.color.toLowerCase()) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // Actualizar texto
+            document.getElementById('custom-text').value = plantilla.texto;
+            
+            // Actualizar estado
+            document.getElementById('mood').value = plantilla.estado;
+        }
+    </script>
+</body>
+</html>

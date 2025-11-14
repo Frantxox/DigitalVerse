@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información Legal - DigitalVerse</title>
+    <meta name="description" content="Política de privacidad, términos de uso y información legal de DigitalVerse. Cumplimiento del RGPD y legislación española.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de animación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --neon-green: #10B981;
+            --purple-accent: #8B5CF6;
+            --dark-bg: #0F172A;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-accent {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .legal-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 3rem;
+            max-width: 4xl;
+            margin: 0 auto;
+        }
+        
+        .legal-nav {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .legal-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .legal-nav li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .legal-nav a {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .legal-nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .legal-nav a.active {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            color: white;
+        }
+        
+        .legal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            padding: 2rem;
+        }
+        
+        .legal-section {
+            margin-bottom: 3rem;
+        }
+        
+        .legal-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legal-section h3 {
+            color: #60A5FA;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .legal-section h4 {
+            color: #A78BFA;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+        
+        .legal-section p {
+            margin-bottom: 1rem;
+            color: #E5E7EB;
+        }
+        
+        .legal-section ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .legal-section li {
+            margin-bottom: 0.5rem;
+            color: #E5E7EB;
+        }
+        
+        .legal-section strong {
+            color: #F3F4F6;
+            font-weight: 600;
+        }
+        
+        .legal-section em {
+            color: #D1D5DB;
+            font-style: italic;
+        }
+        
+        .highlight-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .contact-info {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .date-info {
+            color: #9CA3AF;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+        
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            z-index: 50;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .cookie-banner.show {
+            transform: translateY(0);
+        }
+        
+        .cookie-banner.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de Partículas -->
+    <div id="particle-container" class="particle-bg"></div>
+    
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-blue-400 transition-colors font-medium">Inicio</a>
+                    <a href="catalogo.html" class="text-white hover:text-blue-400 transition-colors font-medium">Catálogo</a>
+                    <a href="planes.html" class="text-white hover:text-blue-400 transition-colors font-medium">Planes</a>
+                    <a href="generador.html" class="text-white hover:text-blue-400 transition-colors font-medium">Generador IA</a>
+                    <a href="login.html" class="text-white hover:text-blue-400 transition-colors font-medium">Iniciar Sesión</a>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Header -->
+    <section class="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="reveal">
+                <h1 class="font-display font-bold text-4xl md:text-6xl mb-6 gradient-text">
+                    Información Legal
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
+                    Política de privacidad, términos de uso y cumplimiento legal de DigitalVerse
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contenido Legal -->
+    <section class="pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Navegación Legal -->
+                <div class="lg:col-span-1">
+                    <div class="legal-nav reveal sticky top-24">
+                        <h3 class="font-accent font-bold text-lg mb-4 text-white">Contenido Legal</h3>
+                        <ul>
+                            <li>
+                                <a href="#" class="active" data-section="privacy">
+                                    Política de Privacidad
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="terms">
+                                    Términos de Uso
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="cookies">
+                                    Política de Cookies
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="returns">
+                                    Política de Devoluciones
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" data-section="compliance">
+                                    Cumplimiento Legal
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Contenido -->
+                <div class="lg:col-span-3">
+                    <div class="legal-content reveal">
+                        <!-- Política de Privacidad -->
+                        <div id="privacy-section" class="legal-section-content">
+                            <div class="date-info">
+                                Última actualización: 14 de noviembre de 2024
+                            </div>
+                            
+                            <h2 class="font-accent font-bold text-3xl mb-6 text-white">Política de Privacidad</h2>
+                            
+                            <div class="legal-section">
+                                <h3>1. Responsable del Tratamiento</h3>
+                                <p><strong>DigitalVerse S.L.</strong></p>
+                                <p>CIF: B12345678</p>
+                                <p>Domicilio: Calle Tecnología 123, 28001 Madrid, España</p>
+                                <p>Email: privacidad@digitalverse.com</p>
+                                <p>Teléfono: +34 91 123 4567</p>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>2. Datos que Recopilamos</h3>
+                                <p>Recopilamos los siguientes tipos de datos personales:</p>
+                                <ul>
+                                    <li><strong>Datos de identificación:</strong> nombre, apellidos, fecha de nacimiento</li>
+                                    <li><strong>Datos de contacto:</strong> email, teléfono</li>
+                                    <li><strong>Datos de pago:</strong> método de pago preferido (no almacenamos datos bancarios)</li>
+                                    <li><strong>Datos de navegación:</strong> IP, dispositivo, navegador</li>
+                                    <li><strong>Datos de uso:</strong> historial de compras, descargas, preferencias</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>3. Finalidad del Tratamiento</h3>
+                                <p>Los datos se utilizan para:</p>
+                                <ul>
+                                    <li>Gestión de la cuenta de usuario</li>
+                                    <li>Procesamiento de pedidos y pagos</li>
+                                    <li>Envío de productos digitales</li>
+                                    <li>Atención al cliente</li>
+                                    <li>Mejora de nuestros servicios</li>
+                                    <li>Cumplimiento de obligaciones legales</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>4. Base Legal</h3>
+                                <p>El tratamiento de datos se basa en:</p>
+                                <ul>
+                                    <li><strong>Art. 6.1.a RGPD:</strong> Consentimiento del interesado</li>
+                                    <li><strong>Art. 6.1.b RGPD:</strong> Ejecución de un contrato</li>
+                                    <li><strong>Art. 6.1.c RGPD:</strong> Cumplimiento de una obligación legal</li>
+                                    <li><strong>Art. 6.1.f RGPD:</strong> Interés legítimo</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>5. Conservación de Datos</h3>
+                                <p>Los datos se conservarán durante:</p>
+                                <ul>
+                                    <li><strong>Datos de cuenta:</strong> Mientras el usuario mantenga su cuenta activa</li>
+                                    <li><strong>Datos de transacciones:</strong> 6 años (obligación legal mercantil)</li>
+                                    <li><strong>Datos de marketing:</strong> Hasta que el usuario retire su consentimiento</li>
+                                    <li><strong>Datos de cookies:</strong> Según se especifica en la política de cookies</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="contact-info">
+                                <h4>Derechos del Interesado</h4>
+                                <p>Puedes ejercer los siguientes derechos:</p>
+                                <ul>
+                                    <li><strong>Derecho de acceso:</strong> Obtener información sobre tus datos</li>
+                                    <li><strong>Derecho de rectificación:</strong> Corregir datos inexactos</li>
+                                    <li><strong>Derecho de supresión:</strong> Solicitar el borrado de tus datos</li>
+                                    <li><strong>Derecho de oposición:</strong> Oponerte al tratamiento de datos</li>
+                                    <li><strong>Derecho de portabilidad:</strong> Recibir tus datos en formato estructurado</li>
+                                    <li><strong>Derecho a no ser objeto de decisiones automatizadas</strong></li>
+                                </ul>
+                                <p>Para ejercer estos derechos, envía un email a: <strong>privacidad@digitalverse.com</strong></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Términos de Uso -->
+                        <div id="terms-section" class="legal-section-content hidden">
+                            <div class="date-info">
+                                Última actualización: 14 de noviembre de 2024
+                            </div>
+                            
+                            <h2 class="font-accent font-bold text-3xl mb-6 text-white">Términos de Uso</h2>
+                            
+                            <div class="legal-section">
+                                <h3>1. Aceptación de Términos</h3>
+                                <p>Al acceder y utilizar DigitalVerse, aceptas estar legalmente obligado por estos términos de uso. Si no estás de acuerdo, no debes utilizar nuestros servicios.</p>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>2. Descripción del Servicio</h3>
+                                <p>DigitalVerse proporciona:</p>
+                                <ul>
+                                    <li>Venta de productos digitales (fondos de pantalla, tarjetas)</li>
+                                    <li>Servicios de suscripción para acceso a contenido premium</li>
+                                    <li>Generador de imágenes con inteligencia artificial</li>
+                                    <li>Gestión de cuenta de usuario</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>3. Requisitos de Edad</h3>
+                                <p>Debes tener al menos <strong>18 años</strong> para utilizar nuestros servicios. Verificamos la edad durante el registro y nos reservamos el derecho de suspender cuentas de menores.</p>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>4. Cuenta de Usuario</h3>
+                                <p>Eres responsable de:</p>
+                                <ul>
+                                    <li>Mantener la confidencialidad de tu contraseña</li>
+                                    <li> Todas las actividades que ocurran en tu cuenta</li>
+                                    <li>Proporcionar información precisa y actualizada</li>
+                                    <li>Notificar cualquier uso no autorizado de tu cuenta</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>5. Propiedad Intelectual</h3>
+                                <p>Todos los productos digitales son propiedad de DigitalVerse o de sus licenciantes. Al comprar un producto, recibes una licencia de uso personal, no la propiedad del contenido.</p>
+                                
+                                <h4>Licencia de Uso</h4>
+                                <ul>
+                                    <li>Uso personal y no comercial (salvo plan empresarial)</li>
+                                    <li>No puedes redistribuir, revender o sublicenciar</li>
+                                    <li>No puedes usar los productos de manera difamatoria</li>
+                                    <li>No puedes crear obras derivadas sin permiso</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="warning-box">
+                                <h4>Prohibiciones Específicas</h4>
+                                <ul>
+                                    <li>Uso de contenido para crear material dañino o ilegal</li>
+                                    <li>Infracción de derechos de autor o marcas registradas</li>
+                                    <li>Uso para spam, phishing o actividades maliciosas</li>
+                                    <li>Modificación del contenido para crear desinformación</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>6. Pagos y Suscripciones</h3>
+                                <p><strong>Precios:</strong> Los precios están indicados en euros e incluyen IVA cuando corresponda.</p>
+                                <p><strong>Métodos de pago:</strong> Aceptamos PayPal, Bizum y tarjetas VISA/Mastercard.</p>
+                                <p><strong>Suscripciones:</strong> Se renuevan automáticamente salvo cancelación 24h antes.</p>
+                                <p><strong>Cancelación:</strong> Puedes cancelar en cualquier momento desde tu panel de usuario.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Política de Cookies -->
+                        <div id="cookies-section" class="legal-section-content hidden">
+                            <div class="date-info">
+                                Última actualización: 14 de noviembre de 2024
+                            </div>
+                            
+                            <h2 class="font-accent font-bold text-3xl mb-6 text-white">Política de Cookies</h2>
+                            
+                            <div class="legal-section">
+                                <h3>1. ¿Qué son las Cookies?</h3>
+                                <p>Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas nuestro sitio web. Se utilizan para recordar tus preferencias, mejorar la experiencia de usuario y analizar el uso del sitio.</p>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>2. Tipos de Cookies que Utilizamos</h3>
+                                
+                                <h4>Cookies Técnicas (Necesarias)</h4>
+                                <ul>
+                                    <li><strong>session_id:</strong> Mantiene la sesión de usuario activa (24h)</li>
+                                    <li><strong>csrf_token:</strong> Protege contra ataques CSRF (sesión)</li>
+                                    <li><strong>cart:</strong> Almacena el carrito de compras (30 días)</li>
+                                </ul>
+                                
+                                <h4>Cookies de Análisis</h4>
+                                <ul>
+                                    <li><strong>ga:</strong> Google Analytics - estadísticas de uso (2 años)</li>
+                                    <li><strong>_gid:</strong> Google Analytics - identificación de usuario (24h)</li>
+                                    <li><strong>_gat:</strong> Google Analytics - limitación de tasa (1 minuto)</li>
+                                </ul>
+                                
+                                <h4>Cookies de Funcionalidad</h4>
+                                <ul>
+                                    <li><strong>preferences:</strong> Guarda tus preferencias de visualización (1 año)</li>
+                                    <li><strong>language:</strong> Recuerda tu idioma preferido (1 año)</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>3. Gestión de Cookies</h3>
+                                <p>Puedes gestionar las cookies de las siguientes formas:</p>
+                                <ul>
+                                    <li><strong>Aceptar todas:</strong> Permite el uso de todas las cookies</li>
+                                    <li><strong>Rechazar todas:</strong> Solo cookies técnicas necesarias</li>
+                                    <li><strong>Personalizar:</strong> Seleccionar tipos específicos de cookies</li>
+                                    <li><strong>Configuración del navegador:</strong> Bloquear o eliminar cookies</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="highlight-box">
+                                <h4>Consecuencias de Rechazar Cookies</h4>
+                                <p>Si rechazas ciertas cookies, algunas funcionalidades del sitio podrían no estar disponibles:</p>
+                                <ul>
+                                    <li>Carrito de compras no funcionará correctamente</li>
+                                    <li>No se recordarán tus preferencias</li>
+                                    <li>Algunos contenidos no estarán personalizados</li>
+                                    <li>No podremos mejorar basándonos en tu uso</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Política de Devoluciones -->
+                        <div id="returns-section" class="legal-section-content hidden">
+                            <div class="date-info">
+                                Última actualización: 14 de noviembre de 2024
+                            </div>
+                            
+                            <h2 class="font-accent font-bold text-3xl mb-6 text-white">Política de Devoluciones</h2>
+                            
+                            <div class="legal-section">
+                                <h3>1. Productos Digitales</h3>
+                                <p>Al tratarse de productos digitales descargables, aplican condiciones especiales:</p>
+                                <ul>
+                                    <li><strong>Derecho de desistimiento:</strong> Puedes cancelar tu pedido dentro de las 24 horas posteriores a la compra si no has descargado el producto.</li>
+                                    <li><strong>Productos defectuosos:</strong> Si el archivo está corrupto o no funciona correctamente, ofrecemos reemplazo o reembolso.</li>
+                                    <li><strong>Incompatibilidad:</strong> No se aceptan devoluciones por incompatibilidad del dispositivo si las especificaciones están claramente indicadas.</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>2. Suscripciones</h3>
+                                <p><strong>Cancelación:</strong> Puedes cancelar tu suscripción en cualquier momento:</p>
+                                <ul>
+                                    <li>La cancelación se efectúa al final del período de facturación actual</li>
+                                    <li>Se puede cancelar desde el panel de usuario</li>
+                                    <li>No se realizan reembolsos parciales por períodos no utilizados</li>
+                                    <li>Conservarás el acceso hasta el final del período pagado</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>3. Proceso de Devolución</h3>
+                                <p>Para solicitar una devolución:</p>
+                                <ol>
+                                    <li>Contacta con soporte@soporte.digitalverse.com en el plazo indicado</li>
+                                    <li>Proporciona tu número de pedido y motivo de la devolución</li>
+                                    <li>Adjunta capturas de pantalla si hay defectos técnicos</li>
+                                    <li>Responderemos en un plazo máximo de 48 horas</li>
+                                    <li>Las devoluciones aprobadas se procesan en 3-5 días laborables</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="warning-box">
+                                <h4>Casos sin Derecho a Devolución</h4>
+                                <ul>
+                                    <li>Productos descargados y utilizados</li>
+                                    <li>Solicitudes fuera de los plazos establecidos</li>
+                                    <li>Cambios de opinión sobre el estilo o diseño</li>
+                                    <li>Problemas técnicos causados por el dispositivo del usuario</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Cumplimiento Legal -->
+                        <div id="compliance-section" class="legal-section-content hidden">
+                            <div class="date-info">
+                                Última actualización: 14 de noviembre de 2024
+                            </div>
+                            
+                            <h2 class="font-accent font-bold text-3xl mb-6 text-white">Cumplimiento Legal</h2>
+                            
+                            <div class="legal-section">
+                                <h3>1. Cumplimiento del RGPD</h3>
+                                <p>DigitalVerse cumple íntegramente con el Reglamento General de Protección de Datos (UE) 2016/679:</p>
+                                <ul>
+                                    <li>Implementación de medidas técnicas y organizativas apropiadas</li>
+                                    <li>Encriptación de datos sensibles en tránsito y en reposo</li>
+                                    <li>Registro de actividades de tratamiento</li>
+                                    <li>Evaluaciones de impacto en protección de datos</li>
+                                    <li>Designación de un Delegado de Protección de Datos</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>2. Legislación Española Aplicable</h3>
+                                <ul>
+                                    <li><strong>Ley Orgánica 3/2018:</strong> Protección de Datos Personales y garantía de los derechos digitales</li>
+                                    <li><strong>Ley 34/2002:</strong> Servicios de la Sociedad de la Información y de Comercio Electrónico</li>
+                                    <li><strong>Ley 7/1996:</strong> Ordenación del Comercio Minorista</li>
+                                    <li><strong>Real Decreto 1720/2007:</strong> Reglamento de desarrollo de la LOPD</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>3. Medidas de Seguridad</h3>
+                                <p>Hemos implementado las siguientes medidas de seguridad:</p>
+                                <ul>
+                                    <li>Protocolo HTTPS en toda la web</li>
+                                    <li>Encriptación de contraseñas con algoritmos seguros</li>
+                                    <li>Copia de seguridad diaria de datos</li>
+                                    <li>Sistema de detección de intrusos</li>
+                                    <li>Auditorías de seguridad periódicas</li>
+                                    <li>Formación del personal en protección de datos</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="legal-section">
+                                <h3>4. Notificación de Brechas de Seguridad</h3>
+                                <p>En caso de brecha de seguridad que pueda afectar a tus datos personales:</p>
+                                <ul>
+                                    <li>Notificaremos a la autoridad competente en un plazo máximo de 72 horas</li>
+                                    <li>Te informaremos sin demora indebida si el riesgo es alto</li>
+                                    <li>Proporcionaremos información clara sobre las medidas tomadas</li>
+                                    <li>Ofreceremos asistencia para minimizar el impacto</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="contact-info">
+                                <h4>Autoridad de Control</h4>
+                                <p>Para presentar reclamaciones puedes contactar con:</p>
+                                <p><strong>Agencia Española de Protección de Datos (AEPD)</strong></p>
+                                <p>C/ Jorge Juan, 6, 28001 Madrid</p>
+                                <p>Teléfono: 912 663 517</p>
+                                <p>Web: <a href="https://www.aepd.es" class="text-blue-400 hover:text-blue-300">www.aepd.es</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Banner de Cookies -->
+    <div id="cookie-banner" class="cookie-banner hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                <div class="flex-1">
+                    <h3 class="font-semibold text-white mb-2">🍪 Usamos cookies</h3>
+                    <p class="text-gray-300 text-sm">
+                        Utilizamos cookies para mejorar tu experiencia. Al continuar navegando, aceptas nuestra 
+                        <a href="#cookies" class="text-blue-400 hover:text-blue-300">política de cookies</a>.
+                    </p>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="cookie-reject" class="btn-secondary px-4 py-2 rounded-lg text-white text-sm">
+                        Rechazar
+                    </button>
+                    <button id="cookie-accept" class="btn-primary px-4 py-2 rounded-lg text-white text-sm">
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">DV</span>
+                </div>
+                <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+                © 2024 DigitalVerse. Todos los derechos reservados.
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="legal.html" class="text-white">Política de Privacidad</a>
+                <a href="legal.html" class="text-white">Términos de Uso</a>
+                <a href="legal.html" class="text-white">Cookies</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script>
+        // Legal específico JavaScript
+        let seccionActual = 'privacy';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarLegal();
+        });
+        
+        function inicializarLegal() {
+            // Configurar eventos
+            configurarEventosLegal();
+            
+            // Mostrar sección inicial
+            mostrarSeccionLegal('privacy');
+            
+            // Verificar estado de cookies
+            verificarCookies();
+        }
+        
+        function configurarEventosLegal() {
+            // Navegación legal
+            document.querySelectorAll('.legal-nav a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const seccion = e.currentTarget.dataset.section;
+                    mostrarSeccionLegal(seccion);
+                });
+            });
+            
+            // Banner de cookies
+            document.getElementById('cookie-accept').addEventListener('click', aceptarCookies);
+            document.getElementById('cookie-reject').addEventListener('click', rechazarCookies);
+        }
+        
+        function mostrarSeccionLegal(seccion) {
+            seccionActual = seccion;
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('.legal-nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${seccion}"]`).classList.add('active');
+            
+            // Mostrar/ocultar secciones
+            document.querySelectorAll('.legal-section-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${seccion}-section`).classList.remove('hidden');
+            
+            // Scroll suave al contenido
+            document.getElementById(`${seccion}-section`).scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+        
+        function verificarCookies() {
+            const cookiesAceptadas = localStorage.getItem('cookies-aceptadas');
+            
+            if (!cookiesAceptadas) {
+                setTimeout(() => {
+                    document.getElementById('cookie-banner').classList.remove('hidden');
+                    document.getElementById('cookie-banner').classList.add('show');
+                }, 2000);
+            }
+        }
+        
+        function aceptarCookies() {
+            localStorage.setItem('cookies-aceptadas', 'true');
+            document.getElementById('cookie-banner').classList.remove('show');
+            document.getElementById('cookie-banner').classList.add('hidden');
+            
+            mostrarNotificacion('Cookies aceptadas. Gracias por tu confianza.', 'success');
+        }
+        
+        function rechazarCookies() {
+            localStorage.setItem('cookies-aceptadas', 'false');
+            document.getElementById('cookie-banner').classList.remove('show');
+            document.getElementById('cookie-banner').classList.add('hidden');
+            
+            // Aquí podrías desactivar cookies no esenciales
+            mostrarNotificacion('Has rechazado las cookies no esenciales.', 'info');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+{
+  "productos": [
+    {
+      "id": 1,
+      "nombre": "Cyber Forest Landscape",
+      "tipo": "fondo-escritorio",
+      "categoria": "naturaleza",
+      "precio": 0.99,
+      "imagen": "producto-1.png",
+      "descripcion": "Paisaje digital futurista con efectos holográficos y neón",
+      "estado": "estatico",
+      "destacado": true,
+      "fecha": "2024-11-14"
+    },
+    {
+      "id": 2,
+      "nombre": "Cyberpunk Anime City",
+      "tipo": "fondo-movil",
+      "categoria": "anime",
+      "precio": 0.99,
+      "imagen": "producto-2.png",
+      "descripcion": "Ciudad cyberpunk estilo anime con luces de neón",
+      "estado": "estatico",
+      "destacado": true,
+      "fecha": "2024-11-14"
+    },
+    {
+      "id": 3,
+      "nombre": "Christmas Holographic Card",
+      "tipo": "tarjeta",
+      "categoria": "festivo",
+      "precio": 1.99,
+      "imagen": "producto-3.png",
+      "descripcion": "Tarjeta de Navidad con efectos holográficos",
+      "estado": "estatico",
+      "destacado": false,
+      "fecha": "2024-11-14"
+    },
+    {
+      "id": 4,
+      "nombre": "Digital Aviation Dreams",
+      "tipo": "fondo-escritorio",
+      "categoria": "aviacion",
+      "precio": 0.99,
+      "imagen": "producto-4.png",
+      "descripcion": "Aeronave digital en vuelo con efectos de neón",
+      "estado": "estatico",
+      "destacado": true,
+      "fecha": "2024-11-14"
+    },
+    {
+      "id": 5,
+      "nombre": "Bioluminescent Garden",
+      "tipo": "fondo-movil",
+      "categoria": "naturaleza",
+      "precio": 0.99,
+      "imagen": "producto-5.png",
+      "descripcion": "Jardín bioluminiscente con plantas brillantes",
+      "estado": "estatico",
+      "destacado": false,
+      "fecha": "2024-11-14"
+    },
+    {
+      "id": 6,
+      "nombre": "Neon Racing Machine",
+      "tipo": "fondo-escritorio",
+      "categoria": "automovilismo",
+      "precio": 0.99,
+      "imagen": "producto-6.png",
+      "descripcion": "Coche de carreras futurista con detalles holográficos",
+      "estado": "estatico",
+      "destacado": true,
+      "fecha": "2024-11-14"
+    }
+  ],
+  "categorias": [
+    {"id": "anime", "nombre": "Anime", "color": "#8B5CF6", "icono": "🎌"},
+    {"id": "naturaleza", "nombre": "Naturaleza", "color": "#10B981", "icono": "🌿"},
+    {"id": "automovilismo", "nombre": "Automovilismo", "color": "#EF4444", "icono": "🏎️"},
+    {"id": "aviacion", "nombre": "Aviación", "color": "#3B82F6", "icono": "✈️"},
+    {"id": "festivo", "nombre": "Festivo", "color": "#F59E0B", "icono": "🎄"},
+    {"id": "videojuegos", "nombre": "Videojuegos", "color": "#8B5CF6", "icono": "🎮"},
+    {"id": "cine", "nombre": "Cine", "color": "#EF4444", "icono": "🎬"},
+    {"id": "musica", "nombre": "Música", "color": "#3B82F6", "icono": "🎵"}
+  ],
+  "tipos": [
+    {"id": "fondo-escritorio", "nombre": "Fondo de Escritorio", "precio": 0.99},
+    {"id": "fondo-movil", "nombre": "Fondo para Móvil", "precio": 0.99},
+    {"id": "tarjeta", "nombre": "Tarjeta de Felicitación", "precio": 1.99}
+  ],
+  "promociones": [
+    {
+      "id": "navidad2024",
+      "nombre": "Promoción Navidad",
+      "descuento": 25,
+      "tipo": "porcentaje",
+      "fecha_inicio": "2024-12-01",
+      "fecha_fin": "2024-12-31",
+      "activa": false
+    },
+    {
+      "id": "bienvenida",
+      "nombre": "Cupon de Bienvenida",
+      "descuento": 20,
+      "tipo": "porcentaje",
+      "codigo": "BIENVENIDO20",
+      "activa": true
+    }
+  ]
+}

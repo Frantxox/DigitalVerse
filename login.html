@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - DigitalVerse</title>
+    <meta name="description" content="Inicia sesión o regístrate en DigitalVerse. Accede a tu panel personal y gestiona tus descargas y suscripciones.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Librerías de animación -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --neon-green: #10B981;
+            --purple-accent: #8B5CF6;
+            --dark-bg: #0F172A;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .font-accent {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .auth-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .form-input {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+        
+        .form-input.error {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+        
+        .form-input.valid {
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .tab-button {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--primary-blue), var(--purple-accent));
+            border-color: transparent;
+        }
+        
+        .error-message {
+            color: #EF4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .success-message {
+            color: #10B981;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .password-strength.weak {
+            background: #EF4444;
+            width: 33%;
+        }
+        
+        .password-strength.medium {
+            background: #F59E0B;
+            width: 66%;
+        }
+        
+        .password-strength.strong {
+            background: #10B981;
+            width: 100%;
+        }
+        
+        .social-button {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .social-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .age-verification {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .age-verification.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .privacy-note {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #93C5FD;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo de Partículas -->
+    <div id="particle-container" class="particle-bg"></div>
+    
+    <!-- Navegación -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-blue-400 transition-colors font-medium">Inicio</a>
+                    <a href="catalogo.html" class="text-white hover:text-blue-400 transition-colors font-medium">Catálogo</a>
+                    <a href="planes.html" class="text-white hover:text-blue-400 transition-colors font-medium">Planes</a>
+                    <a href="generador.html" class="text-white hover:text-blue-400 transition-colors font-medium">Generador IA</a>
+                    <a href="login.html" class="text-blue-400 font-medium">Iniciar Sesión</a>
+                    <div class="relative">
+                        <button id="carrito-btn" class="text-white hover:text-blue-400 transition-colors relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+                            </svg>
+                            <span id="carrito-counter" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Contenedor Principal -->
+    <section class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 min-h-screen flex items-center justify-center">
+        <div class="auth-container reveal">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-2xl">DV</span>
+                    </div>
+                    <span class="font-display font-bold text-3xl gradient-text">DigitalVerse</span>
+                </div>
+                <h1 class="font-accent font-bold text-2xl text-white mb-2">Bienvenido</h1>
+                <p class="text-gray-300">Accede a tu cuenta o crea una nueva</p>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="flex mb-8 rounded-xl overflow-hidden">
+                <button id="login-tab" class="tab-button active flex-1 py-3 px-6 text-center font-semibold text-white">
+                    Iniciar Sesión
+                </button>
+                <button id="register-tab" class="tab-button flex-1 py-3 px-6 text-center font-semibold text-white">
+                    Registrarse
+                </button>
+            </div>
+            
+            <!-- Formulario de Login -->
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" 
+                           id="login-email" 
+                           class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400" 
+                           placeholder="tu@email.com" 
+                           required>
+                    <div class="error-message" id="login-email-error"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
+                    <input type="password" 
+                           id="login-password" 
+                           class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400" 
+                           placeholder="••••••••" 
+                           required>
+                    <div class="error-message" id="login-password-error"></div>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="rounded text-purple-500 focus:ring-purple-400">
+                        <span class="ml-2 text-sm text-gray-300">Recordarme</span>
+                    </label>
+                    <a href="#" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">¿Olvidaste tu contraseña?</a>
+                </div>
+                
+                <button type="submit" class="w-full btn-primary py-3 rounded-xl font-semibold text-white">
+                    Iniciar Sesión
+                </button>
+                
+                <div class="success-message" id="login-success"></div>
+            </form>
+            
+            <!-- Formulario de Registro -->
+            <form id="register-form" class="space-y-6 hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
+                        <input type="text" 
+                               id="register-firstname" 
+                               class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400" 
+                               placeholder="Tu nombre" 
+                               required>
+                        <div class="error-message" id="register-firstname-error"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Apellidos</label>
+                        <input type="text" 
+                               id="register-lastname" 
+                               class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400" 
+                               placeholder="Tus apellidos" 
+                               required>
+                        <div class="error-message" id="register-lastname-error"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" 
+                           id="register-email" 
+                           class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400" 
+                           placeholder="tu@email.com" 
+                           required>
+                    <div class="error-message" id="register-email-error"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Fecha de Nacimiento</label>
+                    <input type="date" 
+                           id="register-birthdate" 
+                           class="form-input w-full px-4 py-3 rounded-xl text-white" 
+                           required>
+                    <div class="error-message" id="register-birthdate-error"></div>
+                    <div class="age-verification" id="age-verification">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm">Verificando edad...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
+                    <input type="password" 
+                           id="register-password" 
+                           class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400" 
+                           placeholder="••••••••" 
+                           required>
+                    <div class="password-strength" id="password-strength"></div>
+                    <div class="error-message" id="register-password-error"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Confirmar Contraseña</label>
+                    <input type="password" 
+                           id="register-confirm-password" 
+                           class="form-input w-full px-4 py-3 rounded-xl text-white placeholder-gray-400" 
+                           placeholder="••••••••" 
+                           required>
+                    <div class="error-message" id="register-confirm-password-error"></div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Método de Pago Preferido</label>
+                    <select id="register-payment-method" class="form-input w-full px-4 py-3 rounded-xl text-white" required>
+                        <option value="">Selecciona un método</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="bizum">Bizum</option>
+                        <option value="visa">Tarjeta VISA</option>
+                    </select>
+                    <div class="error-message" id="register-payment-method-error"></div>
+                </div>
+                
+                <div class="privacy-note">
+                    <p class="mb-2">🔒 Tu información está protegida</p>
+                    <p>Al registrarte, aceptas nuestras <a href="legal.html" class="underline hover:text-blue-300">Condiciones de Uso</a> y <a href="legal.html" class="underline hover:text-blue-300">Política de Privacidad</a>.</p>
+                </div>
+                
+                <button type="submit" class="w-full btn-primary py-3 rounded-xl font-semibold text-white">
+                    Crear Cuenta
+                </button>
+                
+                <div class="success-message" id="register-success"></div>
+            </form>
+            
+            <!-- Divisor -->
+            <div class="flex items-center my-8">
+                <div class="flex-1 h-px bg-gray-600"></div>
+                <span class="px-4 text-sm text-gray-400">o continúa con</span>
+                <div class="flex-1 h-px bg-gray-600"></div>
+            </div>
+            
+            <!-- Botones Sociales -->
+            <div class="space-y-3">
+                <button class="social-button w-full py-3 px-4 rounded-xl text-white flex items-center justify-center space-x-3">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span>Continuar con Google</span>
+                </button>
+                
+                <button class="social-button w-full py-3 px-4 rounded-xl text-white flex items-center justify-center space-x-3">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                    </svg>
+                    <span>Continuar con Twitter</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">DV</span>
+                </div>
+                <span class="font-display font-bold text-xl gradient-text">DigitalVerse</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+                © 2024 DigitalVerse. Todos los derechos reservados.
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Política de Privacidad</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Términos de Uso</a>
+                <a href="legal.html" class="text-gray-400 hover:text-white transition-colors">Cookies</a>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script>
+        // Login específico JavaScript
+        let modoActual = 'login';
+        let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+        let usuarioActual = JSON.parse(localStorage.getItem('usuario')) || null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarAuth();
+        });
+        
+        function inicializarAuth() {
+            // Configurar eventos
+            configurarEventosAuth();
+            
+            // Verificar si hay usuario logueado
+            if (usuarioActual) {
+                mostrarNotificacion(`Bienvenido de nuevo, ${usuarioActual.nombre}`, 'success');
+                setTimeout(() => {
+                    window.location.href = 'panel.html';
+                }, 2000);
+            }
+        }
+        
+        function configurarEventosAuth() {
+            // Tabs
+            document.getElementById('login-tab').addEventListener('click', () => cambiarModo('login'));
+            document.getElementById('register-tab').addEventListener('click', () => cambiarModo('register'));
+            
+            // Formularios
+            document.getElementById('login-form').addEventListener('submit', manejarLogin);
+            document.getElementById('register-form').addEventListener('submit', manejarRegistro);
+            
+            // Validación en tiempo real
+            document.getElementById('register-email').addEventListener('input', validarEmail);
+            document.getElementById('register-birthdate').addEventListener('change', validarEdad);
+            document.getElementById('register-password').addEventListener('input', validarPassword);
+            document.getElementById('register-confirm-password').addEventListener('input', confirmarPassword);
+            
+            // Botones sociales
+            document.querySelectorAll('.social-button').forEach(btn => {
+                btn.addEventListener('click', manejarLoginSocial);
+            });
+        }
+        
+        function cambiarModo(modo) {
+            modoActual = modo;
+            
+            // Actualizar tabs
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${modo}-tab`).classList.add('active');
+            
+            // Mostrar/ocultar formularios
+            document.getElementById('login-form').classList.toggle('hidden', modo !== 'login');
+            document.getElementById('register-form').classList.toggle('hidden', modo !== 'register');
+            
+            // Limpiar mensajes
+            limpiarMensajes();
+        }
+        
+        function manejarLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            // Validar campos
+            if (!email || !password) {
+                mostrarError('login-email', 'Por favor completa todos los campos');
+                return;
+            }
+            
+            // Simular proceso de login
+            mostrarCargando('login-form', true);
+            
+            setTimeout(() => {
+                // Buscar usuario
+                const usuario = usuarios.find(u => u.email === email && u.password === password);
+                
+                if (usuario) {
+                    // Login exitoso
+                    usuarioActual = usuario;
+                    localStorage.setItem('usuario', JSON.stringify(usuario));
+                    
+                    mostrarCargando('login-form', false);
+                    mostrarExito('login-success', '¡Login exitoso! Redirigiendo...');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'panel.html';
+                    }, 2000);
+                } else {
+                    // Login fallido
+                    mostrarCargando('login-form', false);
+                    mostrarError('login-email', 'Email o contraseña incorrectos');
+                }
+            }, 2000);
+        }
+        
+        function manejarRegistro(e) {
+            e.preventDefault();
+            
+            const datos = {
+                nombre: document.getElementById('register-firstname').value.trim(),
+                apellidos: document.getElementById('register-lastname').value.trim(),
+                email: document.getElementById('register-email').value.trim(),
+                fechaNacimiento: document.getElementById('register-birthdate').value,
+                password: document.getElementById('register-password').value,
+                confirmPassword: document.getElementById('register-confirm-password').value,
+                metodoPago: document.getElementById('register-payment-method').value
+            };
+            
+            // Validaciones
+            if (!validarFormularioRegistro(datos)) {
+                return;
+            }
+            
+            // Verificar edad
+            const edad = validarEdad(datos.fechaNacimiento);
+            if (edad < 18) {
+                mostrarError('register-birthdate', 'Debes tener al menos 18 años para registrarte');
+                return;
+            }
+            
+            // Verificar si el email ya existe
+            if (usuarios.find(u => u.email === datos.email)) {
+                mostrarError('register-email', 'Este email ya está registrado');
+                return;
+            }
+            
+            // Simular proceso de registro
+            mostrarCargando('register-form', true);
+            
+            setTimeout(() => {
+                // Crear nuevo usuario
+                const nuevoUsuario = {
+                    id: Date.now(),
+                    nombre: datos.nombre,
+                    apellidos: datos.apellidos,
+                    email: datos.email,
+                    fechaNacimiento: datos.fechaNacimiento,
+                    password: datos.password, // En producción, esto debe estar hasheado
+                    metodoPago: datos.metodoPago,
+                    fechaRegistro: new Date().toISOString(),
+                    creditos: 5, // Créditos de bienvenida
+                    tipoPlan: 'basico'
+                };
+                
+                // Añadir a la lista de usuarios
+                usuarios.push(nuevoUsuario);
+                localStorage.setItem('usuarios', JSON.stringify(usuarios));
+                
+                // Establecer como usuario actual
+                usuarioActual = nuevoUsuario;
+                localStorage.setItem('usuario', JSON.stringify(nuevoUsuario));
+                
+                mostrarCargando('register-form', false);
+                mostrarExito('register-success', '¡Registro exitoso! Bienvenido a DigitalVerse');
+                
+                // Enviar cupón de bienvenida
+                enviarCuponBienvenida(nuevoUsuario);
+                
+                setTimeout(() => {
+                    window.location.href = 'panel.html';
+                }, 2000);
+            }, 2500);
+        }
+        
+        function validarFormularioRegistro(datos) {
+            let esValido = true;
+            
+            // Nombre
+            if (!datos.nombre) {
+                mostrarError('register-firstname', 'El nombre es obligatorio');
+                esValido = false;
+            }
+            
+            // Apellidos
+            if (!datos.apellidos) {
+                mostrarError('register-lastname', 'Los apellidos son obligatorios');
+                esValido = false;
+            }
+            
+            // Email
+            if (!datos.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) {
+                mostrarError('register-email', 'Email inválido');
+                esValido = false;
+            }
+            
+            // Fecha de nacimiento
+            if (!datos.fechaNacimiento) {
+                mostrarError('register-birthdate', 'La fecha de nacimiento es obligatoria');
+                esValido = false;
+            }
+            
+            // Contraseña
+            if (datos.password.length < 8) {
+                mostrarError('register-password', 'La contraseña debe tener al menos 8 caracteres');
+                esValido = false;
+            }
+            
+            // Confirmar contraseña
+            if (datos.password !== datos.confirmPassword) {
+                mostrarError('register-confirm-password', 'Las contraseñas no coinciden');
+                esValido = false;
+            }
+            
+            // Método de pago
+            if (!datos.metodoPago) {
+                mostrarError('register-payment-method', 'Selecciona un método de pago');
+                esValido = false;
+            }
+            
+            return esValido;
+        }
+        
+        function validarEmail(e) {
+            const email = e.target.value.trim();
+            const errorElement = document.getElementById('register-email-error');
+            
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                mostrarError('register-email', 'Email inválido');
+            } else if (email) {
+                limpiarError('register-email');
+                e.target.classList.add('valid');
+            }
+        }
+        
+        function validarEdad(e) {
+            const fechaNacimiento = e.target.value;
+            const edad = calcularEdad(fechaNacimiento);
+            const verificationDiv = document.getElementById('age-verification');
+            
+            if (fechaNacimiento) {
+                if (edad >= 18) {
+                    verificationDiv.classList.add('success');
+                    verificationDiv.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm">Verificación completada. Edad: ${edad} años</span>
+                        </div>
+                    `;
+                    e.target.classList.add('valid');
+                } else {
+                    verificationDiv.classList.remove('success');
+                    verificationDiv.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm">Debes tener al menos 18 años (tienes ${edad})</span>
+                        </div>
+                    `;
+                    e.target.classList.add('error');
+                }
+            }
+        }
+        
+        function calcularEdad(fechaNacimiento) {
+            const hoy = new Date();
+            const nacimiento = new Date(fechaNacimiento);
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const mes = hoy.getMonth() - nacimiento.getMonth();
+            
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+            
+            return edad;
+        }
+        
+        function validarPassword(e) {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('password-strength');
+            
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/\d/)) strength++;
+            if (password.match(/[^a-zA-Z\d]/)) strength++;
+            
+            strengthBar.className = 'password-strength';
+            
+            if (strength < 2) {
+                strengthBar.classList.add('weak');
+            } else if (strength < 4) {
+                strengthBar.classList.add('medium');
+            } else {
+                strengthBar.classList.add('strong');
+            }
+            
+            if (password.length >= 8) {
+                e.target.classList.add('valid');
+                limpiarError('register-password');
+            }
+        }
+        
+        function confirmarPassword(e) {
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = e.target.value;
+            
+            if (confirmPassword && password === confirmPassword) {
+                e.target.classList.add('valid');
+                limpiarError('register-confirm-password');
+            } else if (confirmPassword) {
+                mostrarError('register-confirm-password', 'Las contraseñas no coinciden');
+            }
+        }
+        
+        function manejarLoginSocial(e) {
+            const provider = e.currentTarget.textContent.includes('Google') ? 'Google' : 'Twitter';
+            
+            mostrarNotificacion(`Iniciando sesión con ${provider}...`, 'info');
+            
+            // Simular proceso de login social
+            setTimeout(() => {
+                // Crear usuario de prueba para demo
+                const usuarioSocial = {
+                    id: Date.now(),
+                    nombre: `Usuario ${provider}`,
+                    email: `user${Date.now()}@demo.com`,
+                    metodoPago: 'paypal',
+                    fechaRegistro: new Date().toISOString(),
+                    creditos: 5,
+                    tipoPlan: 'basico'
+                };
+                
+                usuarioActual = usuarioSocial;
+                localStorage.setItem('usuario', JSON.stringify(usuarioSocial));
+                
+                mostrarNotificacion(`¡Bienvenido con ${provider}!`, 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'panel.html';
+                }, 1500);
+            }, 2000);
+        }
+        
+        function mostrarError(campoId, mensaje) {
+            const input = document.getElementById(campoId);
+            const errorElement = document.getElementById(`${campoId}-error`);
+            
+            input.classList.remove('valid');
+            input.classList.add('error');
+            
+            errorElement.textContent = mensaje;
+            errorElement.style.display = 'block';
+        }
+        
+        function limpiarError(campoId) {
+            const input = document.getElementById(campoId);
+            const errorElement = document.getElementById(`${campoId}-error`);
+            
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
+        }
+        
+        function limpiarMensajes() {
+            document.querySelectorAll('.error-message, .success-message').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.form-input').forEach(input => {
+                input.classList.remove('error', 'valid');
+            });
+        }
+        
+        function mostrarExito(elementoId, mensaje) {
+            const elemento = document.getElementById(elementoId);
+            elemento.textContent = mensaje;
+            elemento.style.display = 'block';
+        }
+        
+        function mostrarCargando(formularioId, mostrar) {
+            const formulario = document.getElementById(formularioId);
+            const boton = formulario.querySelector('button[type="submit"]');
+            
+            if (mostrar) {
+                boton.innerHTML = '<span class="loading-spinner"></span>Procesando...';
+                boton.disabled = true;
+            } else {
+                boton.innerHTML = formularioId === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta';
+                boton.disabled = false;
+            }
+        }
+        
+        function enviarCuponBienvenida(usuario) {
+            // Simular envío de cupón de bienvenida
+            const cupones = JSON.parse(localStorage.getItem('cupones')) || [];
+            
+            const cuponBienvenida = {
+                id: Date.now(),
+                usuarioId: usuario.id,
+                codigo: 'BIENVENIDO20',
+                descuento: 20,
+                tipo: 'porcentaje',
+                fechaExpiracion: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 días
+                usado: false
+            };
+            
+            cupones.push(cuponBienvenida);
+            localStorage.setItem('cupones', JSON.stringify(cupones));
+            
+            // Mostrar notificación
+            setTimeout(() => {
+                mostrarNotificacion('¡Cupón de bienvenida enviado! Revisa tu email.', 'success');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
