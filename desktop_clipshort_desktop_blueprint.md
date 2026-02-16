@@ -6,7 +6,7 @@
 Se propone una **arquitectura hexagonal + clean architecture**:
 
 - **Core de dominio (independiente de frameworks)** con entidades, casos de uso y reglas de negocio.
-- **Adapters / Infraestructura** para API de IA, FFmpeg, SQLite, almacenamiento, licencias y publicación.
+- **Adapters / Infraestructura** para API de IA, FFmpeg, SQLite, almacenamiento, publicación y conectores externos.
 - **App Shell de escritorio** (Tauri + frontend React/Vue o WPF) como capa de presentación.
 
 Esto permite:
@@ -95,11 +95,13 @@ Esto permite:
     - Score basado en hook strength, duración, ritmo y legibilidad.
     - Recomendaciones accionables (“reduce intro 2s”, “mejorar CTA”).
 
-11. **Licensing/Billing Module**
-    - Activación de licencia, suscripción, créditos IA y consumo.
+11. **Free Access & Cost Control Module**
+    - Acceso 100% gratuito y sin activación de licencia.
+    - Monitor de consumo de APIs externas (solo para transparencia de costos del usuario).
 
-12. **Marketplace Module**
-    - Instalación/actualización de plantillas, packs de estilos y voces.
+12. **Community Templates Hub**
+    - Instalación/actualización de plantillas, packs de estilos y voces de la comunidad.
+    - Catálogo curado de recursos gratuitos y compatibles.
 
 13. **Plugin SDK Runtime**
     - Extensiones para nuevos proveedores (LLM/TTS/STT/publicación).
@@ -179,9 +181,8 @@ series_episodes(id, series_id, project_id, episode_number, status)
 hooks_library(id, niche, text, score, tags)
 metadata_suggestions(id, project_id, title, description, hashtags, platform)
 engagement_scores(id, project_id, hook_score, pace_score, subtitle_score, overall_score, recommendations_json)
-licenses(id, workspace_id, license_key, plan, status, expires_at)
-credit_wallet(id, workspace_id, credits_balance, updated_at)
-credit_transactions(id, workspace_id, type, amount, feature, created_at)
+api_usage_logs(id, workspace_id, provider, feature, units_used, estimated_cost, created_at)
+community_sources(id, name, url, type, enabled, last_sync_at)
 plugins(id, name, version, status, manifest_json, installed_at)
 audit_logs(id, scope, level, message, payload_json, created_at)
 ```
@@ -212,7 +213,7 @@ audit_logs(id, scope, level, message, payload_json, created_at)
       /image-gen
       /ffmpeg
       /publishers
-      /billing
+      /cost-monitoring
     /plugin-sdk
     /shared-kernel             # tipos comunes, errores, utilidades
   /infra
@@ -247,12 +248,12 @@ audit_logs(id, scope, level, message, payload_json, created_at)
 - Timeline Pro + auto-cortes + subtítulos animados avanzados.
 - Presets por plataforma + preview en tiempo real optimizada.
 
-### Fase 3 — Comercialización (4–6 semanas)
-- Licencias, suscripción, créditos IA, billing y límites por plan.
-- Telemetría opt-in, hardening de errores y logging avanzado.
+### Fase 3 — Estabilización de producto libre (4–6 semanas)
+- Eliminación total de lógicas de licenciamiento y paywall.
+- Telemetría opt-in, hardening de errores, logging avanzado y monitor de costos APIs.
 
 ### Fase 4 — Escalado y ecosistema (6+ semanas)
-- Marketplace de plantillas/plugins.
+- Hub comunitario de plantillas/plugins.
 - Publicación asistida en redes y versión cloud híbrida.
 
 ---
@@ -263,7 +264,7 @@ audit_logs(id, scope, level, message, payload_json, created_at)
 2. **Pipeline híbrido local/cloud** con fallback offline para edición.
 3. **Series-first**: continuidad narrativa y branding episódico.
 4. **Predictor de engagement explicable** (no caja negra).
-5. **Plugin marketplace** para ecosistema de extensiones.
+5. **Hub comunitario gratuito** para ecosistema de extensiones.
 6. **Control granular audiovisual** comparable a herramientas pro, con UX simplificada.
 
 ---
@@ -279,7 +280,7 @@ audit_logs(id, scope, level, message, payload_json, created_at)
   - 1 AI Engineer
   - 1 QA Automation
 - **Horizonte MVP comercial**: 4–6 meses.
-- **Horizonte versión robusta con marketplace**: 8–12 meses.
+- **Horizonte versión robusta con hub comunitario**: 8–12 meses.
 
 Riesgos técnicos principales:
 - Variabilidad y costo de proveedores IA.
@@ -309,8 +310,16 @@ Racional: “ViralForge Studio” transmite fabricación de contenido viral con 
 
 ## Verificación final solicitada
 
-- ✅ Funcionalidades clave cubiertas: guion IA, TTS/STT, subtítulos animados, plantillas 9:16, timeline, series, metadata, export, score de engagement, licensing y marketplace.
+- ✅ Funcionalidades clave cubiertas: guion IA, TTS/STT, subtítulos animados, plantillas 9:16, timeline, series, metadata, export, score de engagement y hub comunitario.
 - ✅ Arquitectura coherente y escalable: hexagonal + clean, módulos desacoplados, plugin runtime y puertos/adaptadores.
 - ✅ UX bien definida: onboarding wizard, modo rápido, modo pro, dashboard, tooltips contextuales, theming y drag & drop.
-- ✅ Viabilidad comercial: monetización mixta (licencia/suscripción/créditos/marketplace) + roadmap realista.
+- ✅ Viabilidad de producto libre: distribución gratuita, sin barreras de pago y con control transparente del costo de APIs externas.
 - ✅ Lista para iniciar desarrollo: stack, módulos, DB schema, carpetas, roadmap y riesgos/mitigaciones accionables.
+
+---
+
+## Nota de modelo de uso (requisito actualizado)
+
+- Este aplicativo se define como **gratuito y libre de uso** para el usuario final.
+- No se implementarán licencias, suscripciones ni créditos internos como requisito del producto base.
+- Si se usan proveedores IA de terceros con facturación, el sistema solo mostrará consumo estimado para que el usuario gestione sus propias claves.
